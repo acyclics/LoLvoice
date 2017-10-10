@@ -1,2 +1,4 @@
 # LionAI
-A Desktop AI in development.
+A Desktop AI in development. Please be patient :)
+
+-Aslan Chui
