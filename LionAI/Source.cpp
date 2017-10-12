@@ -4,6 +4,7 @@
 #include <pocketsphinx.h>
 #include <sphinxbase/ad.h>
 #include <sphinxbase/err.h>
+#include <modules.h>
 
 using namespace std;
 
@@ -35,6 +36,14 @@ int main(int argc, char *argv[]) {
 		istringstream iss(decoded_speech);
 		string words;
 		while (iss >> words) {
+			if (words == "the") {
+				while (iss >> words) {
+					if (words == "problem") {
+						opensteam();
+					}
+				}
+			}
+			else 
 			cout << words << "\n" << endl;
 		}
 	}

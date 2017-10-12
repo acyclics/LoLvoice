@@ -14,28 +14,4 @@
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
   </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Source.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="Code.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="windowapps.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="opensteam.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="modules.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="openfilesheaders.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-  </ItemGroup>
 </Project>
