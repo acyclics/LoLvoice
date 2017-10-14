@@ -157,6 +157,7 @@
     <Text Include="Code.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="adaptionaudiorecord.h" />
     <ClInclude Include="modules.h" />
     <ClInclude Include="openfilesheaders.h" />
     <ClInclude Include="opensteam.h" />

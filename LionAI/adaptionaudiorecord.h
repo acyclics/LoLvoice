@@ -1,3 +1,4 @@
+#pragma once
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -7,6 +8,8 @@
 #include <modules.h>
 
 using namespace std;
+
+// For recording speaker microphone input into RAW audio file -- to adapt speaker to Sphinx
 
 string recognize_from_microphone();
 
@@ -26,6 +29,7 @@ int main(int argc, char *argv[]) {
 		"-hmm", MODELDIR "/en-us/en-us",              // path to the standard english language model
 		"-lm", MODELDIR "/en-us/en-us.lm.bin",                                         // custom language model (file must be present)
 		"-dict", MODELDIR "/en-us/cmudict-en-us.dict",	  // custom dictionary (file must be present)  
+		"-logfn", "/dev/null",                                      // suppress log info from being sent to screen
 		NULL);
 
 	ps = ps_init(config);                                                        // initialize the pocketsphinx decoder
@@ -33,20 +37,7 @@ int main(int argc, char *argv[]) {
 
 	while (1) {
 		string decoded_speech = recognize_from_microphone();          // call the function to capture and decode speech           
-		istringstream iss(decoded_speech);
-		string words;
-		while (iss >> words) {
-			if (words == "the") {
-				while (iss >> words) {
-					if (words == "problem") {
-						opensteam();
-					}
-					break;
-				}
-			}
-			else 
-			cout << words << "\n" << endl;
-		}
+		cout << "Decoded Speech: " << decoded_speech << "\n" << endl;   // send decoded speech to screen
 	}
 
 	ad_close(ad);                                                    // close the microphone
