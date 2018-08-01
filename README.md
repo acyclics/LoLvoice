@@ -1,6 +1,8 @@
 # LoLvoice
 An application that "types" into League of Legend's in-game chat what you speak into your microphone.
+
 Currently available on Windows and is coded primarily in c/c++.
+
 LoLvoice make use of open-source libraries and is itself open-source.
 
 
@@ -25,4 +27,14 @@ Since LoLvoice is coded in Microsoft's visual studio 2015, the VS' Solution is p
 1. [sphinxbase](https://github.com/cmusphinx/sphinxbase)
 2. [pocketsphinx](https://github.com/cmusphinx/pocketsphinx)
 3. [curl](https://github.com/curl/curl)
+
 Other non-library dependencies used are [IBM's Watson Speech-to-Text API](https://www.ibm.com/watson/services/speech-to-text/) and a few artworks from [Riot Games](https://www.riotgames.com/en) for League of Legends. Any licenses or credits for these dependencies can be found at [Licenses-Credits](https://github.com/impeccableaslan/LoLvoice/tree/master/Licenses-Credits).
+
+Once you built those three dependencies, you will have to run your "Developer command prompt for VS" as administrator and create the paths to those dependencies in your system environmental variables:
+1. Enter the following commands into the developer command prompt one by one (take care to change the paths)
+```
+setx -m SPHINX_BASE PATH-TO-SPHINXBASE
+setx -m POCK_SPHINX PATH-TO-POCKETSPHINX
+setx -m CURL_PATH PATH-TO-CURL
+```
+2. Then, build the solution with "Debug" configuration.
