@@ -1,5 +1,5 @@
 # General
-LoLvoice can convert what you speak into your microphone to text into League of Legend's in-game chat. But, its usage is restricted to in-game and it is not recommended to use LoLvoice in other places such as when using LoL's friend system to chat.
+LoLvoice can convert what you speak into your microphone to League of Legend's in-game chat. Essentially, you speak into your microphone and LoLvoice "types" what you spoke into LoL's in-game chat, basically voice chat! But, its usage is restricted to in-game and it is not recommended to use LoLvoice in other places.
 
 # Usage
 The first time you use LoLvoice, it will prompt you to enter the path of LoLvoice folder. You can simply leave it at the default path and press "Set Path".
