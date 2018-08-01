@@ -5,7 +5,6 @@ Currently available on Windows and is coded primarily in c/c++.
 
 LoLvoice make use of open-source libraries and is itself open-source.
 
-
 # Disclaimer
 LoLvoice isn’t endorsed by Riot Games and doesn’t reflect the views or opinions of Riot Games or anyone officially involved in producing or managing League of Legends. League of Legends and Riot Games are trademarks or registered trademarks of Riot Games, Inc. League of Legends © Riot Games, Inc.
 
@@ -19,11 +18,11 @@ Simply download the softwares in the above links and follow the provided instruc
 # Installation of LoLvoice with installer
 1. Download "setup.exe" here: [download](https://github.com/impeccableaslan/LoLvoice/releases)
 2. Following the instructions provided by the installer
-3. Once installed, read the guide to use LoLvoice here:
+3. Once installed, read the guide to use LoLvoice here: [guide](https://github.com/impeccableaslan/LoLvoice/blob/master/guide.txt)
 4. Note that LoLvoice requires admin permission to operate
 
-# Installation from source
-Since LoLvoice is coded in Microsoft's visual studio 2015, the VS' Solution is provided to install with. But, there are a few dependencies required to build LoLvoice:
+# Installation of LoLvoice from source
+This method of installation should only be attempted by people who know what they are doing and have the tools to do so. Since LoLvoice is coded in Microsoft's visual studio 2015, the VS' Solution is provided to install with. But, there are a few dependencies required to build LoLvoice:
 1. [sphinxbase](https://github.com/cmusphinx/sphinxbase)
 2. [pocketsphinx](https://github.com/cmusphinx/pocketsphinx)
 3. [curl](https://github.com/curl/curl)
@@ -38,3 +37,6 @@ setx -m POCK_SPHINX PATH-TO-POCKETSPHINX
 setx -m CURL_PATH PATH-TO-CURL
 ```
 2. Then, build the solution with "Debug" configuration.
+
+# How to use
+Regarding the usage of LoLvoice, have a look at the guide here: [guide](https://github.com/impeccableaslan/LoLvoice/blob/master/guide.txt)
