@@ -20,7 +20,7 @@ Simply download the softwares in the above links and follow the provided instruc
 # Installation of LoLvoice with installer
 1. Download "setup.exe" here: [download](https://github.com/impeccableaslan/LoLvoice/releases)
 2. Following the instructions provided by the installer
-3. Once installed, read the guide to use LoLvoice here: [guide](https://github.com/impeccableaslan/LoLvoice/blob/master/guide.txt)
+3. Once installed, read the guide to use LoLvoice here: [guide](https://github.com/impeccableaslan/LoLvoice/blob/master/guide.md)
 4. Note that LoLvoice requires admin permission to operate
 
 # Installation of LoLvoice from source
@@ -41,7 +41,7 @@ setx -m CURL_PATH PATH-TO-CURL
 2. Then, build the solution with "Debug" configuration.
 
 # How to use
-Regarding the usage of LoLvoice, have a look at the guide here: [guide](https://github.com/impeccableaslan/LoLvoice/blob/master/guide.txt)
+Regarding the usage of LoLvoice, have a look at the guide here: [guide](https://github.com/impeccableaslan/LoLvoice/blob/master/guide.md)
 
 # Language
 The provided installer and source files are configured to transcript from English speech to English text. However, the source code can be configured to be used for other languages. Feel free to configure it yourself and if you did, please do contribute on Github. This apply to any improvements to the source code you can make. Contributions are encouraged and welcomed.
