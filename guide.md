@@ -29,3 +29,5 @@ If you want to use Overdrive, you must press the gear icon and change the keybin
 
 ### Verdict
 Personally, I would recommend IBM-STT mode. The setup is not that difficult and its accuracy is simply much higher than sphinx (big coorperation = big accuracy). The inability to transcript lol-related words should not be a big issue since the amount of words that exists only in League of Legends is limited. For example, "Blade of the ruined King" is composed of multiple words that many people know exists. Also, you wouldn't have to fear running out of transcriptions for that month either as its limit is very high. Your usage is also refreshed each month since the limit is on a per-month basis.
+
+Regarding Overdrive mode, I think its usage is complicated which strips away the convenience a "voice chat" program should bring. Then again, if Sphinx mode works fine for you for short phrases and you want to use IBM-STT mode for long phrases, I think Overdrive mode might be the right mode in your case.
