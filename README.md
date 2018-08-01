@@ -1,7 +1,9 @@
 # LoLvoice
-An application that "types" into League of Legend's in-game chat what you speak into your microphone.
+An application that "types" into League of Legend's in-game chat what you spoke into your microphone. Basically voice chat for LoL.
 
-Currently available on Windows and is coded primarily in c/c++.
+Currently available on Windows and is coded primarily in C/C++.
+
+Language: English
 
 LoLvoice make use of open-source libraries and is itself open-source.
 
@@ -40,3 +42,6 @@ setx -m CURL_PATH PATH-TO-CURL
 
 # How to use
 Regarding the usage of LoLvoice, have a look at the guide here: [guide](https://github.com/impeccableaslan/LoLvoice/blob/master/guide.txt)
+
+# Language
+The provided installer and source files are configured to transcript from English speech to English text. However, the source code can be configured to be used for other languages. Feel free to configure it yourself and if you did, please do contribute on Github. This apply to any improvements to the source code you can make. Contributions are encouraged and welcomed.
