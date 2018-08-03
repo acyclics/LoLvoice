@@ -12,7 +12,7 @@ LoLvoice isn’t endorsed by Riot Games and doesn’t reflect the views or opini
 
 As with all LoL-related projects, use at your own risk. As a reassurance, I have sent a ticket to Riot Games asking for a confirmation of the validity of this project. Here is their response:
 
-![alt text](https://raw.githubusercontent.com/impeccableaslan/LoLvoice/master/riotresponse.png)
+![alt text](https://raw.githubusercontent.com/impeccableaslan/LoLvoice/master/riotresponse.PNG)
 
 It is doubtful that this program violates any policies since it essentially uses your keyboard to type into League of Legend's in-game chat what you spoke into your microphone. It is basically a voice chat application, and players have been playing League of Legends with voice chat for ages.
 
