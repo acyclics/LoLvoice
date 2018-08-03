@@ -1,5 +1,6 @@
 # General
-LoLvoice can convert what you speak into your microphone to League of Legend's in-game chat. Essentially, you speak into your microphone and LoLvoice "types" what you spoke into LoL's in-game chat, basically voice chat! But, its usage is restricted to in-game and it is not recommended to use LoLvoice in other places.
+LoLvoice can convert what you speak into your microphone to League of Legend's in-game chat. Essentially, you speak into your microphone and LoLvoice "types" what you spoke into LoL's in-game chat, basically voice chat! But, its usage is restricted to in-game and it is not recommended to use LoLvoice in other places. It is also recommended for you to run League of Legends in full-screen mode.
+
 
 # Usage
 The first time you use LoLvoice, it will prompt you to enter the path of LoLvoice folder. You can simply leave it at the default path and press "Set Path".
@@ -20,7 +21,7 @@ After you created the account, click the gear icon in LoLvoice and you should se
 
 Note that on first use, an error will pop-up stating it failed to connect to IBM. This is because you haven't enter the username and password yet, hence the error. You can ignore it and go on ahead with entering the username and password.
 
-Unlike Sphinx mode, IBM-STT mode does not contain lol-related words.
+Unlike Sphinx mode, IBM-STT mode does not contain lol-related words. Also, due to IBM's system, repeating the same words over and over (ex. "testing testing testing") will only result in the transcription of one iteration (ex. "testing").
 
 ### Overdrive
 Overdrive mode is a combination of Sphinx mode and IBM-STT. This is provided so that you can combine the merits of both modes. Because of Sphinx's varying accuracy, it is better suited for short phrases and since it has unlimited usage, you might prefer using Sphinx mode for speaking a few words. Furthermore, Sphinx mode can transcript lol-related words. On the other hand, IBM-STT mode has very high accuracy and is better suited for long phrases; however, it has limited usage per month (which honestly, should be enough) nor can it transcript lol-related words. By combining the two modes, the user can get the best of both worlds, so to speak, and use the two different modes by using two different keybinds. For example, they can press "x" to use sphinx mode's transcriptor or press "g" to use IBM-STT's transcriptor.
