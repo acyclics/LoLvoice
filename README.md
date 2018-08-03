@@ -14,7 +14,7 @@ As with all LoL-related projects, use at your own risk. As a reassurance, I have
 
 ![alt text](https://raw.githubusercontent.com/impeccableaslan/LoLvoice/master/riotresponse.PNG)
 
-It is doubtful that this program violates any policies since it essentially uses your keyboard to type into League of Legend's in-game chat what you spoke into your microphone. It is basically a voice chat application, and players have been playing League of Legends with voice chat for ages.
+LoLvoice, basically voice chat, doesn't automate the game (it doesn't play the game for you) and instead provides accessibility -- an option to communicate to players with in-game chat through your voice. Needless to say, LoLvoice is not a macro program either since you can't use it to "chain abilities" etc. Therefore, please be reassured that LoLvoice does not violate any policies and you are free to use it in your games to come.
 
 # Pre-requisites
 The following softwares must be installed in order for LoLvoice to work:
