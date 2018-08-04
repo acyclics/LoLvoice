@@ -28,11 +28,14 @@ Overdrive mode is a combination of Sphinx mode and IBM-STT. This is provided so 
 
 If you want to use Overdrive, you must press the gear icon and change the keybinds, lest you use the same keybind for both transcriptor, resulting in two transcriptions.
 
-### Verdict
+# Verdict
 Personally, I would recommend IBM-STT mode. The setup is not that difficult and its accuracy is simply much higher than sphinx (big coorperation = big accuracy). The inability to transcript lol-related words should not be a big issue since the amount of words that exists only in League of Legends is limited. For example, "Blade of the ruined King" is composed of multiple words that many people know exists. Also, you wouldn't have to fear running out of transcriptions for that month either as its limit is very high. Your usage is also refreshed each month since the limit is on a per-month basis.
 
 Regarding Overdrive mode, I think its usage is complicated which strips away the convenience a "voice chat" program should bring. Then again, if Sphinx mode works fine for you for short phrases and you want to use IBM-STT mode for long phrases, I think Overdrive mode might be the right mode in your case.
 
-### Things to note
+# Things to note
 - Since LoLvoice basically simulate keystrokes, refrain from doing anything that would close LoL's in-game chat such as left-clicking (you can still right-click to move your character) or pressing the "escape" button. For users that might have switched their controls from the default, understand that you can still move your character when "typing" with LoLvoice.
-- I found lowering graphic settings and running LoL in full-screen mode really help with reducing the overall CPU usage
+- I found running LoL in full-screen mode betters the experience of using LoLvoice
+
+# Known bug(s)
+1. With the latest update to LoLvoice, I can no longer reproduce this bug but when I was testing the old LoLvoice, in a few rare cases I was not be able to cast any champion abilities after LoLvoice "types", the cause of which seems to be LoL's in-game chat remaining opened invisibly even when manually closed. This means any abilities you cast will be interpreted by LoL as typing into the invisible chat. I don't know whether this bug still exists but if this happens, simply press your "escape" button (so as to close the invisible LoL's in-game chat) and everything will be fine.
