@@ -53,3 +53,6 @@ In addition, I would recommend you to run League of Legends in full-screen mode.
 
 # Language
 The provided installer and source files are configured to transcript from English speech to English text. However, the source code can be configured to be used for other languages. Feel free to configure it yourself and if you did, please do contribute on Github. This apply to any improvements to the source code you can make. Contributions are encouraged and welcomed.
+
+# Known bugs
+1. In rare cases, after LoLvoice "types" you might not be able to cast abilities, the cause of which seems to be LoL's in-game chat remaining opened invisibly even when manually closed. If this happens, simply press your "escape" button (so as to close the invisible LoL's in-game chat) and everything will be fine.
