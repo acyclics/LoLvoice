@@ -45,6 +45,8 @@ setx -m POCK_SPHINX PATH-TO-POCKETSPHINX
 setx -m CURL_PATH PATH-TO-CURL
 ```
 2. Then, build the solution with "Debug" configuration.
+3. Copy the contents in the "LoLvoiceNeedThese" folder into the Debug folder containing LoLvoice.exe created by Visual Studio.
+4. Unzip all the "en-us.lm.zip" zip files in the folders "en-us" and "en-us-adapt" (there are multiple zip files within these two folders).
 
 # How to use
 Regarding the usage of LoLvoice, have a look at the guide here: [guide](https://github.com/impeccableaslan/LoLvoice/blob/master/guide.md)
