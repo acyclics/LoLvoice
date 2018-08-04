@@ -25,6 +25,7 @@ void initializePaths();
 bool checkifmllrexist();
 std::string sconvert(const char *pCh, int arraySize);
 std::string loadconfigfile();
+void dividearrays_sphinx(char array1[], char** &array2, int sizeofarray1, int &numberofphrase, int* &dividedarraysize);
 
 // char arrays for loading file paths
 char * array_file = nullptr;
@@ -180,12 +181,28 @@ void startRecord()
 			while ((GetKeyState(keybind) & 0x80) != 0) 
 			{					// when user press the keybind start input
 				std::string decoded_speech = recognize_from_microphone();          // call the function to capture and decode speech           
-				pressEnter(ip2);
 				char char_array[1000];
 				strcpy_s(char_array, decoded_speech.c_str());
-				alpaOut(char_array, sizeof(char_array) / sizeof(char_array[0]));
-				Sleep(10);													// must edit this and adjust for in-game
-				pressEnter(ip2);
+				int countofarray(0), totalcountofarray(0);
+				int * dividedarraysizeofbuffer = nullptr;
+				char ** dividedarray = nullptr;
+				dividearrays_sphinx(char_array, dividedarray, decoded_speech.length()/sizeof(decoded_speech[0]), totalcountofarray, dividedarraysizeofbuffer);
+				while (countofarray != totalcountofarray)
+				{
+					pressEnter(ip2);
+					alpaOut(dividedarray[countofarray], dividedarraysizeofbuffer[countofarray]);
+					Sleep(60);
+					pressEnter(ip2);
+					++countofarray;
+				}
+				if (decoded_speech.length() / sizeof(decoded_speech[0]) != 0)
+				{
+					// might have to add this to above too
+					delete[] dividedarraysizeofbuffer;
+					delete[] dividedarray;
+				}
+				dividedarraysizeofbuffer = nullptr;
+				dividedarray = nullptr;
 			}
 		}
 		if (micClose == true)
@@ -256,6 +273,90 @@ std::string recognize_from_microphone()
 	}
 
 }
+
+void dividearrays_sphinx(char array1[], char** &array2, int sizeofarray1, int &numberofphrase, int* &dividedarraysize)
+{
+	int numberofspace(0);
+	for (int count(0); count < sizeofarray1; ++count)
+	{
+		if (array1[count] == ' ')
+		{
+			++numberofspace;
+		}
+	}
+
+	if (numberofspace > 3)
+	{
+		// need to divide
+		double roundnoofwords = static_cast<double>(numberofspace) / 3.0;
+		if (roundnoofwords > numberofspace / 3)
+		{
+			numberofphrase = (numberofspace / 3) + 1;
+		}
+		else
+		{
+			numberofphrase = (numberofspace / 3);
+		}
+		array2 = new char*[numberofphrase];
+		dividedarraysize = new int[numberofphrase];
+		int countingwords(0), previouswords(0);
+		int recordofpreviouswords(0);
+
+		for (int phrases(0); phrases < numberofphrase; ++phrases)
+		{
+			recordofpreviouswords = previouswords;
+			int countingspaces(0);
+			countingwords = previouswords;
+
+			for (countingwords; countingwords < sizeofarray1; ++countingwords)
+			{
+				if (array1[countingwords] == ' ')
+				{
+					++countingspaces;
+				}
+				++previouswords;
+				if (countingspaces == 3)
+					break;
+			}
+
+			if (countingspaces == 3)
+			{
+				array2[phrases] = new char[previouswords - 1 - recordofpreviouswords + 1];
+				dividedarraysize[phrases] = previouswords - 1 - recordofpreviouswords;
+				for (int count(0); count < previouswords - 1 - recordofpreviouswords; ++count)
+				{
+					array2[phrases][count] = array1[recordofpreviouswords + count];
+				}
+				array2[phrases][previouswords - 1 - recordofpreviouswords] = '\0';
+			}
+			else
+			{
+				array2[phrases] = new char[previouswords - recordofpreviouswords + 1];
+				dividedarraysize[phrases] = previouswords - recordofpreviouswords;
+				for (int count(0); count < previouswords - recordofpreviouswords; ++count)
+				{
+					array2[phrases][count] = array1[recordofpreviouswords + count];
+				}
+				array2[phrases][previouswords - recordofpreviouswords] = '\0';
+			}
+		}
+	}
+	else
+	{
+		// no need to divide
+		numberofphrase = 1;
+		array2 = new char*[numberofphrase];
+		array2[0] = new char[sizeofarray1 + 1];
+		dividedarraysize = new int[1];
+		dividedarraysize[0] = sizeofarray1;
+		for (int count(0); count < sizeofarray1; ++count)
+		{
+			array2[0][count] = array1[count];
+		}
+		array2[0][sizeofarray1] = '\0';
+	}
+}
+
 
 void openMic()
 {

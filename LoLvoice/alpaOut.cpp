@@ -151,6 +151,13 @@ void alpaOut(char char_array[], int length)
 			ip.ki.dwFlags = KEYEVENTF_KEYUP;
 			SendInput(1, &ip, sizeof(INPUT));
 			break;
+		case 'I':
+			ip.ki.wVk = 0x49;
+			ip.ki.dwFlags = 0;
+			SendInput(1, &ip, sizeof(INPUT));
+			ip.ki.dwFlags = KEYEVENTF_KEYUP;
+			SendInput(1, &ip, sizeof(INPUT));
+			break;
 		case 'j':
 			ip.ki.wVk = 0x4A;
 			ip.ki.dwFlags = 0;

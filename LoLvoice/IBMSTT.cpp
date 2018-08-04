@@ -319,7 +319,7 @@ void readFromIbm(char* &array, int keybind, int &sizeofbuffer)
 	waveInClose(hWaveIn_mico);
 
 	// when connection is being re-established to ibm, we pause here so the connection can be completed before we send audio data
-	while (checkifcansend == false)
+	while ((checkifcansend == false) && hWebSocketHandle == NULL)
 	{
 		Sleep(1);
 	}
@@ -438,6 +438,89 @@ void sendsilence()
 	}
 }
 
+void dividearrays(char* &array1, char** &array2, int sizeofarray1, int &numberofphrase, int* &dividedarraysize)
+{
+	int numberofspace(0);
+	for (int count(0); count < sizeofarray1; ++count)
+	{
+		if (array1[count] == ' ')
+		{
+			++numberofspace;
+		}
+	}
+
+	if (numberofspace > 3)
+	{
+		// need to divide
+		double roundnoofwords = static_cast<double>(numberofspace) / 3.0;
+		if (roundnoofwords > numberofspace / 3)
+		{
+			numberofphrase = (numberofspace / 3) + 1;
+		}
+		else 
+		{
+			numberofphrase = (numberofspace / 3);
+		}
+		array2 = new char*[numberofphrase];
+		dividedarraysize = new int[numberofphrase];
+		int countingwords(0), previouswords(0);
+		int recordofpreviouswords(0);
+
+		for (int phrases(0); phrases < numberofphrase; ++phrases)
+		{
+			recordofpreviouswords = previouswords;
+			int countingspaces(0);
+			countingwords = previouswords;
+
+			for (countingwords; countingwords < sizeofarray1; ++countingwords)
+			{
+				if (array1[countingwords] == ' ')
+				{
+					++countingspaces;
+				}
+				++previouswords;
+				if (countingspaces == 3)
+					break;
+			}
+
+			if (countingspaces == 3)
+			{
+				array2[phrases] = new char[previouswords - 1 - recordofpreviouswords + 1];
+				dividedarraysize[phrases] = previouswords - 1 - recordofpreviouswords;
+				for (int count(0); count < previouswords - 1 - recordofpreviouswords; ++count)
+				{
+					array2[phrases][count] = array1[recordofpreviouswords + count];
+				}
+				array2[phrases][previouswords - 1 - recordofpreviouswords] = '\0';
+			}
+			else
+			{
+				array2[phrases] = new char[previouswords - recordofpreviouswords + 1];
+				dividedarraysize[phrases] = previouswords - recordofpreviouswords;
+				for (int count(0); count < previouswords - recordofpreviouswords; ++count)
+				{
+					array2[phrases][count] = array1[recordofpreviouswords + count];
+				}
+				array2[phrases][previouswords - recordofpreviouswords] = '\0';
+			}
+		}
+	}
+	else
+	{
+		// no need to divide
+		numberofphrase = 1;
+		array2 = new char*[numberofphrase];
+		array2[0] = new char[sizeofarray1 + 1];
+		dividedarraysize = new int[1];
+		dividedarraysize[0] = sizeofarray1;
+		for (int count(0); count < sizeofarray1; ++count)
+		{
+			array2[0][count] = array1[count];
+		}
+		array2[0][sizeofarray1] = '\0';
+	}
+}
+
 void startIbmTts()
 {
 	// initialize
@@ -467,15 +550,28 @@ void startIbmTts()
 				checkifcansilence = false;
 				//setupmicrophone();
 				readFromIbm(ibmarray, keybind_ibm, sizeofbuffer);
-				pressEnter(ip2);
-				alpaOut(ibmarray, sizeofbuffer);
-				Sleep(10);
-				pressEnter(ip2);
+				int countofarray(0), totalcountofarray(0);
+				int * dividedarraysizeofbuffer = nullptr;
+				char ** dividedarray = nullptr;
+				dividearrays(ibmarray, dividedarray, sizeofbuffer, totalcountofarray, dividedarraysizeofbuffer);
+				while (countofarray != totalcountofarray)
+				{
+					pressEnter(ip2);
+					alpaOut(dividedarray[countofarray], dividedarraysizeofbuffer[countofarray]);
+					Sleep(60);
+					pressEnter(ip2);
+					++countofarray;
+				}
 				if (sizeofbuffer != 0)
 				{
+					// might have to add this to above too
 					delete[] ibmarray;
+					delete[] dividedarraysizeofbuffer;
+					delete[] dividedarray;
 				}
 				ibmarray = nullptr;
+				dividedarraysizeofbuffer = nullptr;
+				dividedarray = nullptr;
 				checkifcansilence = true;
 			}
 		}
