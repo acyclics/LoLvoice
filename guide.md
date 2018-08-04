@@ -38,7 +38,7 @@ Regarding Overdrive mode, I think its usage is complicated which strips away the
 
 - I found running LoL in full-screen mode betters the experience of using LoLvoice.
 
-- If you had used LoLvoice, you would've noticed that sentences are divided into multiple phrases. This is done on purpose, both to prevent the user from mistakenly type into chat while casting abilities and CPU usage.
+- If you had used LoLvoice, you would've noticed that sentences are divided into multiple phrases. This is done on purpose, both to prevent the user from mistakenly type into chat while casting abilities and to reduce CPU usage.
 
 # Known bug(s)
 1. With the latest update to LoLvoice, I can no longer reproduce this bug but when I was testing the old LoLvoice, in a few rare cases I was not be able to cast any champion abilities after LoLvoice "types", the cause of which seems to be LoL's in-game chat remaining opened invisibly even when manually closed. This means any abilities you cast will be interpreted by LoL as typing into the invisible chat. I don't know whether this bug still exists but if this happens, simply press your "escape" button (so as to close the invisible LoL's in-game chat) and everything will be fine.
