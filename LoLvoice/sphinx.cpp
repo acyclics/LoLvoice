@@ -12,6 +12,7 @@
 
 std::string recognize_from_microphone();
 void alpaOut(char char_array[], int length);
+void alpaOut_string(std::string speech);
 bool psChecker();
 bool micState = false;
 bool micClose = false;
@@ -26,6 +27,7 @@ bool checkifmllrexist();
 std::string sconvert(const char *pCh, int arraySize);
 std::string loadconfigfile();
 void dividearrays_sphinx(char array1[], char** &array2, int sizeofarray1, int &numberofphrase, int* &dividedarraysize);
+std::string loadsphinxoutputfile();
 
 // char arrays for loading file paths
 char * array_file = nullptr;
@@ -167,6 +169,12 @@ void startRecord()
 
 	keybind = viewKey();		// load keybind from config file
 
+	int sphinxoutputmode_int(0);
+	std::string sphinxoutputmode = loadsphinxoutputfile();
+	std::ifstream pathfile(sphinxoutputmode);
+	pathfile >> sphinxoutputmode_int;
+	pathfile.close();
+
 	// string decoded_speech;
 	INPUT ip2;
 	ip2.type = INPUT_KEYBOARD;
@@ -174,57 +182,99 @@ void startRecord()
 	ip2.ki.time = 0;
 	ip2.ki.dwExtraInfo = 0;
 	bool switcher = true;
-	while (switcher)
+
+	if (sphinxoutputmode_int == 0)
 	{
-		Sleep(1);									// cheap way of lowering cpu usage. should be fine though since user must hold keybind to input
-		if (micState == true) {
-			while ((GetKeyState(keybind) & 0x80) != 0) 
-			{					// when user press the keybind start input
-				std::string decoded_speech = recognize_from_microphone();          // call the function to capture and decode speech           
-				char char_array[1000];
-				strcpy_s(char_array, decoded_speech.c_str());
-				int countofarray(0), totalcountofarray(0);
-				int * dividedarraysizeofbuffer = nullptr;
-				char ** dividedarray = nullptr;
-				dividearrays_sphinx(char_array, dividedarray, decoded_speech.length()/sizeof(decoded_speech[0]), totalcountofarray, dividedarraysizeofbuffer);
-				while (countofarray != totalcountofarray)
-				{
+		while (switcher)
+		{
+			Sleep(1);									// cheap way of lowering cpu usage. should be fine though since user must hold keybind to input
+			if (micState == true) {
+				while ((GetKeyState(keybind) & 0x80) != 0)
+				{					// when user press the keybind start input
+					std::string decoded_speech = recognize_from_microphone();          // call the function to capture and decode speech
 					pressEnter(ip2);
-					alpaOut(dividedarray[countofarray], dividedarraysizeofbuffer[countofarray]);
-					Sleep(60);
+					alpaOut_string(decoded_speech);
+					Sleep(60);													// must edit this and adjust for in-game
 					pressEnter(ip2);
-					++countofarray;
 				}
-				if (decoded_speech.length() / sizeof(decoded_speech[0]) != 0)
-				{
-					// might have to add this to above too
-					delete[] dividedarraysizeofbuffer;
-					delete[] dividedarray;
-				}
-				dividedarraysizeofbuffer = nullptr;
-				dividedarray = nullptr;
+			}
+			if (micClose == true)
+			{
+				ad_close(ad);
+
+				delete[] array_file;
+				array_file = nullptr;
+
+				delete[] array_file_hmm;
+				array_file_hmm = nullptr;
+
+				delete[] array_file_lm;
+				array_file_lm = nullptr;
+
+				delete[] array_file_dict;
+				array_file_dict = nullptr;
+
+				delete[] mllr_file;
+				mllr_file = nullptr;
+
+				switcher = false;
 			}
 		}
-		if (micClose == true)
+	}
+	if (sphinxoutputmode_int == 1)
+	{
+		while (switcher)
 		{
-			ad_close(ad);
+			Sleep(1);									// cheap way of lowering cpu usage. should be fine though since user must hold keybind to input
+			if (micState == true) {
+				while ((GetKeyState(keybind) & 0x80) != 0)
+				{					// when user press the keybind start input
+					std::string decoded_speech = recognize_from_microphone();          // call the function to capture and decode speech           
+					char char_array[1000];
+					strcpy_s(char_array, decoded_speech.c_str());
+					int countofarray(0), totalcountofarray(0);
+					int * dividedarraysizeofbuffer = nullptr;
+					char ** dividedarray = nullptr;
+					dividearrays_sphinx(char_array, dividedarray, decoded_speech.length() / sizeof(decoded_speech[0]), totalcountofarray, dividedarraysizeofbuffer);
+					while (countofarray != totalcountofarray)
+					{
+						pressEnter(ip2);
+						alpaOut(dividedarray[countofarray], dividedarraysizeofbuffer[countofarray]);
+						Sleep(60);
+						pressEnter(ip2);
+						++countofarray;
+					}
+					if (decoded_speech.length() / sizeof(decoded_speech[0]) != 0)
+					{
+						// might have to add this to above too
+						delete[] dividedarraysizeofbuffer;
+						delete[] dividedarray;
+					}
+					dividedarraysizeofbuffer = nullptr;
+					dividedarray = nullptr;
+				}
+			}
+			if (micClose == true)
+			{
+				ad_close(ad);
 
-			delete[] array_file;
-			array_file = nullptr;
+				delete[] array_file;
+				array_file = nullptr;
 
-			delete[] array_file_hmm;
-			array_file_hmm = nullptr;
+				delete[] array_file_hmm;
+				array_file_hmm = nullptr;
 
-			delete[] array_file_lm;
-			array_file_lm = nullptr;
+				delete[] array_file_lm;
+				array_file_lm = nullptr;
 
-			delete[] array_file_dict;
-			array_file_dict = nullptr;
+				delete[] array_file_dict;
+				array_file_dict = nullptr;
 
-			delete[] mllr_file;
-			mllr_file = nullptr;
+				delete[] mllr_file;
+				mllr_file = nullptr;
 
-			switcher = false;
+				switcher = false;
+			}
 		}
 	}
 }
@@ -616,4 +666,146 @@ bool checkifsphinxfilesnotloaded()
 		return true;
 	else
 		return false;
+}
+
+std::string loadsphinxoutputfile()
+{
+	// load exe
+	char exe_path[MAX_PATH];
+	char* sphinx_outputmode = nullptr;
+	HMODULE hmodule = GetModuleHandle(NULL);
+	GetModuleFileNameA(hmodule, exe_path, (sizeof(exe_path)));
+	int directorysize(0);
+
+	for (int count(0); count < 260; ++count)
+	{
+		++directorysize;
+		// find LoLvoice.exe
+		if (exe_path[count] == 'L')
+		{
+			if (exe_path[count + 1] == 'o')
+			{
+				if (exe_path[count + 2] == 'L')
+				{
+					if (exe_path[count + 3] == 'v')
+					{
+						if (exe_path[count + 4] == 'o')
+						{
+							if (exe_path[count + 5] == 'i')
+							{
+								if (exe_path[count + 6] == 'c')
+								{
+									if (exe_path[count + 7] == 'e')
+									{
+										if (exe_path[count + 8] == '.')
+										{
+											if (exe_path[count + 9] == 'e')
+											{
+												if (exe_path[count + 10] == 'x')
+												{
+													if (exe_path[count + 11] == 'e')
+													{
+														break;
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	sphinx_outputmode = new char[directorysize + 23 + 1];
+	char sphinxoutputmodefilename[25] = "Config/sphinx_outputmode";
+
+	for (int count(0); count < directorysize - 1; ++count)
+	{
+		sphinx_outputmode[count] = exe_path[count];
+	}
+	for (int count(0); count < 24; ++count)
+	{
+		sphinx_outputmode[directorysize - 1 + count] = sphinxoutputmodefilename[count];
+	}
+	sphinx_outputmode[directorysize + 23] = '\0';
+
+	std::string sphinxoutputfinalpath = sconvert(sphinx_outputmode, (directorysize + 23 + 1));
+	delete[] sphinx_outputmode;
+	sphinx_outputmode = nullptr;
+	return sphinxoutputfinalpath;
+}
+
+std::string loadsphinxoutputtempfile()
+{
+	// load exe
+	char exe_path[MAX_PATH];
+	char* sphinx_outputmode = nullptr;
+	HMODULE hmodule = GetModuleHandle(NULL);
+	GetModuleFileNameA(hmodule, exe_path, (sizeof(exe_path)));
+	int directorysize(0);
+
+	for (int count(0); count < 260; ++count)
+	{
+		++directorysize;
+		// find LoLvoice.exe
+		if (exe_path[count] == 'L')
+		{
+			if (exe_path[count + 1] == 'o')
+			{
+				if (exe_path[count + 2] == 'L')
+				{
+					if (exe_path[count + 3] == 'v')
+					{
+						if (exe_path[count + 4] == 'o')
+						{
+							if (exe_path[count + 5] == 'i')
+							{
+								if (exe_path[count + 6] == 'c')
+								{
+									if (exe_path[count + 7] == 'e')
+									{
+										if (exe_path[count + 8] == '.')
+										{
+											if (exe_path[count + 9] == 'e')
+											{
+												if (exe_path[count + 10] == 'x')
+												{
+													if (exe_path[count + 11] == 'e')
+													{
+														break;
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	sphinx_outputmode = new char[directorysize + 28 + 1];
+	char sphinxoutputmodefilename[30] = "Config/sphinx_outputmode_temp";
+
+	for (int count(0); count < directorysize - 1; ++count)
+	{
+		sphinx_outputmode[count] = exe_path[count];
+	}
+	for (int count(0); count < 29; ++count)
+	{
+		sphinx_outputmode[directorysize - 1 + count] = sphinxoutputmodefilename[count];
+	}
+	sphinx_outputmode[directorysize + 28] = '\0';
+
+	std::string sphinxoutputfinalpath = sconvert(sphinx_outputmode, (directorysize + 28 + 1));
+	delete[] sphinx_outputmode;
+	sphinx_outputmode = nullptr;
+	return sphinxoutputfinalpath;
 }

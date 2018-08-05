@@ -98,17 +98,20 @@ void endIbmstt();
 void overdriveKeybind();
 void changeKeybind();
 
+std::string loadibmoutputfile();
+std::string loadibmoutputtempfile();
+std::string loadsphinxoutputfile();
+std::string loadsphinxoutputtempfile();
+
 struct StateInfo {
 
 	int state;
-	// ... (struct members not shown)
-
 };
 
 HINSTANCE hInst;
 WNDCLASS wc_set = {}, wc_ibm = {}, wc_overdrive = {};
 HINSTANCE hinst_set, hinst_path, hinst_speech, hinst_ibm, hinst_overdrive;
-HWND setwindow, setkeybind, adaptbutton, adaptchange, adaptbuttoncont, adaptbuttoncont2, path_input, parentwindow, pathactwindow, pathButton, speechwindow, username, password, setuserpassButton, setoverdrivebind;
+HWND setwindow, setkeybind, adaptbutton, adaptchange, adaptbuttoncont, adaptbuttoncont2, path_input, parentwindow, pathactwindow, pathButton, speechwindow, username, password, setuserpassButton, setoverdrivebind, windowforsettings;
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow)
 {
@@ -301,6 +304,8 @@ WNDPROC OldButtonProc12;
 WNDPROC OldButtonProc13;
 WNDPROC OldButtonProc14;
 WNDPROC OldButtonProc15;
+WNDPROC OldButtonProc16;
+WNDPROC OldButtonProc17;
 
 LRESULT CALLBACK ButtonProc(HWND hwnd, UINT uMsg, WPARAM wp, LPARAM lp)
 {
@@ -451,6 +456,8 @@ LRESULT CALLBACK ButtonProc3(HWND hwnd, UINT uMsg, WPARAM wp, LPARAM lp)
 				return 0;
 			}
 
+			windowforsettings = settings;
+
 			if (settingsFocus == true)
 			{
 				SetWindowPos(settings, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
@@ -485,6 +492,8 @@ LRESULT CALLBACK ButtonProc3(HWND hwnd, UINT uMsg, WPARAM wp, LPARAM lp)
 				return 0;
 			}
 
+			windowforsettings = settings_ibm;
+
 			if (settingsFocus_ibm == true)
 			{
 				SetWindowPos(settings_ibm, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
@@ -518,6 +527,8 @@ LRESULT CALLBACK ButtonProc3(HWND hwnd, UINT uMsg, WPARAM wp, LPARAM lp)
 			{
 				return 0;
 			}
+
+			windowforsettings = settings_overdrive;
 
 			if (settingsFocus_overdrive == true)
 			{
@@ -1173,6 +1184,166 @@ LRESULT CALLBACK ButtonProc15(HWND settings_overdrive, UINT uMsg, WPARAM wp, LPA
 	return CallWindowProc(OldButtonProc15, settings_overdrive, uMsg, wp, lp);
 }
 
+LRESULT CALLBACK ButtonProc16(HWND settings_ibm, UINT uMsg, WPARAM wp, LPARAM lp)
+{
+	switch (uMsg) {
+	case WM_LBUTTONDOWN:
+	{
+		int ibmoutputmode_int(0);
+		std::string ibmoutputmode = loadibmoutputfile();
+		std::string ibmoutputmode_temp = loadibmoutputtempfile();
+		std::ifstream pathfile(ibmoutputmode);
+		pathfile >> ibmoutputmode_int;
+		pathfile.close();
+
+		if (ibmoutputmode_int == 0)
+		{
+			std::ofstream mytempfile;
+			mytempfile.open(ibmoutputmode_temp, std::ios::app | std::ios::in);
+			mytempfile << 1;
+			mytempfile.close();
+
+			char* finalibmoutputarray = new char[ibmoutputmode.length() / sizeof(ibmoutputmode[0]) + 1];
+			char* ibmoutputtemparray = new char[ibmoutputmode_temp.length() / sizeof(ibmoutputmode_temp[0]) + 1];
+
+			for (int count(0); count<ibmoutputmode.length() / sizeof(ibmoutputmode[0]); ++count)
+			{
+				finalibmoutputarray[count] = ibmoutputmode[count];
+			}
+			finalibmoutputarray[ibmoutputmode.length() / sizeof(ibmoutputmode[0])] = '\0';
+			for (int count(0); count < ibmoutputmode_temp.length() / sizeof(ibmoutputmode_temp[0]); ++count)
+			{
+				ibmoutputtemparray[count] = ibmoutputmode_temp[count];
+			}
+			ibmoutputtemparray[ibmoutputmode_temp.length() / sizeof(ibmoutputmode_temp[0])] = '\0';
+
+			remove(finalibmoutputarray);
+			rename(ibmoutputtemparray, finalibmoutputarray);
+
+			delete[] finalibmoutputarray;
+			finalibmoutputarray = nullptr;
+			delete[] ibmoutputtemparray;
+			ibmoutputtemparray = nullptr;
+		}
+		if (ibmoutputmode_int == 1)
+		{
+			std::ofstream mytempfile;
+			mytempfile.open(ibmoutputmode_temp, std::ios::app | std::ios::in);
+			mytempfile << 0;
+			mytempfile.close();
+
+			char* finalibmoutputarray = new char[ibmoutputmode.length() / sizeof(ibmoutputmode[0]) + 1];
+			char* ibmoutputtemparray = new char[ibmoutputmode_temp.length() / sizeof(ibmoutputmode_temp[0]) + 1];
+
+			for (int count(0); count<ibmoutputmode.length() / sizeof(ibmoutputmode[0]); ++count)
+			{
+				finalibmoutputarray[count] = ibmoutputmode[count];
+			}
+			finalibmoutputarray[ibmoutputmode.length() / sizeof(ibmoutputmode[0])] = '\0';
+			for (int count(0); count < ibmoutputmode_temp.length() / sizeof(ibmoutputmode_temp[0]); ++count)
+			{
+				ibmoutputtemparray[count] = ibmoutputmode_temp[count];
+			}
+			ibmoutputtemparray[ibmoutputmode_temp.length() / sizeof(ibmoutputmode_temp[0])] = '\0';
+
+			remove(finalibmoutputarray);
+			rename(ibmoutputtemparray, finalibmoutputarray);
+
+			delete[] finalibmoutputarray;
+			finalibmoutputarray = nullptr;
+			delete[] ibmoutputtemparray;
+			ibmoutputtemparray = nullptr;
+		}
+
+		MessageBoxA(NULL, "Switching output mode requires restarting LoLvoice. The program will now exit.", "Restart", MB_ICONWARNING | MB_DEFBUTTON2);
+		exit(-1);
+	}
+	break;
+	}
+
+	return CallWindowProc(OldButtonProc16, settings_ibm, uMsg, wp, lp);
+}
+
+LRESULT CALLBACK ButtonProc17(HWND settings_ibm, UINT uMsg, WPARAM wp, LPARAM lp)
+{
+	switch (uMsg) {
+	case WM_LBUTTONDOWN:
+	{
+		int sphinxoutputmode_int(0);
+		std::string sphinxoutputmode = loadsphinxoutputfile();
+		std::string sphinxoutputmode_temp = loadsphinxoutputtempfile();
+		std::ifstream pathfile(sphinxoutputmode);
+		pathfile >> sphinxoutputmode_int;
+		pathfile.close();
+
+		if (sphinxoutputmode_int == 0)
+		{
+			std::ofstream mytempfile;
+			mytempfile.open(sphinxoutputmode_temp, std::ios::app | std::ios::in);
+			mytempfile << 1;
+			mytempfile.close();
+
+			char* finalsphinxoutputarray = new char[sphinxoutputmode.length() / sizeof(sphinxoutputmode[0]) + 1];
+			char* sphinxoutputtemparray = new char[sphinxoutputmode_temp.length() / sizeof(sphinxoutputmode_temp[0]) + 1];
+
+			for (int count(0); count<sphinxoutputmode.length() / sizeof(sphinxoutputmode[0]); ++count)
+			{
+				finalsphinxoutputarray[count] = sphinxoutputmode[count];
+			}
+			finalsphinxoutputarray[sphinxoutputmode.length() / sizeof(sphinxoutputmode[0])] = '\0';
+			for (int count(0); count < sphinxoutputmode_temp.length() / sizeof(sphinxoutputmode_temp[0]); ++count)
+			{
+				sphinxoutputtemparray[count] = sphinxoutputmode_temp[count];
+			}
+			sphinxoutputtemparray[sphinxoutputmode_temp.length() / sizeof(sphinxoutputmode_temp[0])] = '\0';
+
+			remove(finalsphinxoutputarray);
+			rename(sphinxoutputtemparray, finalsphinxoutputarray);
+
+			delete[] finalsphinxoutputarray;
+			finalsphinxoutputarray = nullptr;
+			delete[] sphinxoutputtemparray;
+			sphinxoutputtemparray = nullptr;
+		}
+		if (sphinxoutputmode_int == 1)
+		{
+			std::ofstream mytempfile;
+			mytempfile.open(sphinxoutputmode_temp, std::ios::app | std::ios::in);
+			mytempfile << 0;
+			mytempfile.close();
+
+			char* finalsphinxoutputarray = new char[sphinxoutputmode.length() / sizeof(sphinxoutputmode[0]) + 1];
+			char* sphinxoutputtemparray = new char[sphinxoutputmode_temp.length() / sizeof(sphinxoutputmode_temp[0]) + 1];
+
+			for (int count(0); count<sphinxoutputmode.length() / sizeof(sphinxoutputmode[0]); ++count)
+			{
+				finalsphinxoutputarray[count] = sphinxoutputmode[count];
+			}
+			finalsphinxoutputarray[sphinxoutputmode.length() / sizeof(sphinxoutputmode[0])] = '\0';
+			for (int count(0); count < sphinxoutputmode_temp.length() / sizeof(sphinxoutputmode_temp[0]); ++count)
+			{
+				sphinxoutputtemparray[count] = sphinxoutputmode_temp[count];
+			}
+			sphinxoutputtemparray[sphinxoutputmode_temp.length() / sizeof(sphinxoutputmode_temp[0])] = '\0';
+
+			remove(finalsphinxoutputarray);
+			rename(sphinxoutputtemparray, finalsphinxoutputarray);
+
+			delete[] finalsphinxoutputarray;
+			finalsphinxoutputarray = nullptr;
+			delete[] sphinxoutputtemparray;
+			sphinxoutputtemparray = nullptr;
+		}
+
+		MessageBoxA(NULL, "Switching output mode requires restarting LoLvoice. The program will now exit.", "Restart", MB_ICONWARNING | MB_DEFBUTTON2);
+		exit(-1);
+	}
+	break;
+	}
+
+	return CallWindowProc(OldButtonProc17, settings_ibm, uMsg, wp, lp);
+}
+
 // Functions regarding buttons
 
 // windproc
@@ -1261,6 +1432,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		DeleteObject(hBitmap03);
 		DeleteObject(hBitmap04);
 		DeleteObject(hBitmap05);
+
+		ShowWindow(windowforsettings, SW_HIDE);
 
 		PostQuitMessage(0);
 	}
@@ -1402,6 +1575,38 @@ LRESULT CALLBACK WindowProc_set(HWND settings, UINT uMsg, WPARAM wParam, LPARAM 
 			settings, (HMENU)(101),
 			hinst_set, NULL);
 
+		int sphinxoutputmode_int(0);
+		std::string sphinxoutputmode = loadsphinxoutputfile();
+		std::ifstream pathfile(sphinxoutputmode);
+		pathfile >> sphinxoutputmode_int;
+		pathfile.close();
+
+		if (sphinxoutputmode_int == 0)
+		{
+			HWND sphinxoutputmodescreen = CreateWindowEx(WS_EX_CLIENTEDGE, L"Static", L"Block",
+				WS_CHILD | WS_VISIBLE | WS_BORDER | ES_CENTER | ES_READONLY,
+				(width_set - width_set*0.95), (height_set + height_set*0.05 - 25),
+				(width_set*0.60), 24,	// x, y, w, h
+				settings, (HMENU)(101),
+				hinst_set, NULL);
+		}
+		if (sphinxoutputmode_int == 1)
+		{
+			HWND sphinxoutputmodescreen = CreateWindowEx(WS_EX_CLIENTEDGE, L"Static", L"Spread",
+				WS_CHILD | WS_VISIBLE | WS_BORDER | ES_CENTER | ES_READONLY,
+				(width_set - width_set*0.95), (height_set + height_set*0.05 - 25),
+				(width_set*0.60), 24,	// x, y, w, h
+				settings, (HMENU)(101),
+				hinst_set, NULL);
+		}
+
+		HWND switchoutputButton = CreateWindow(L"button", L"Switch",
+			WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
+			(width_set + width_set*0.50), (height_set + height_set*0.05 - 25),
+			(width_set*0.40), 24,
+			settings, (HMENU)BUTTON_ID_KEY,
+			hinst_set, NULL);
+
 		OldButtonProc4 = (WNDPROC)SetWindowLong(okButton, GWL_WNDPROC, (LONG)ButtonProc4);
 
 		OldButtonProc5 = (WNDPROC)SetWindowLong(keyButton, GWL_WNDPROC, (LONG)ButtonProc5);
@@ -1411,6 +1616,8 @@ LRESULT CALLBACK WindowProc_set(HWND settings, UINT uMsg, WPARAM wParam, LPARAM 
 		OldButtonProc7 = (WNDPROC)SetWindowLong(adaptButton_cont, GWL_WNDPROC, (LONG)ButtonProc7);
 
 		OldButtonProc8 = (WNDPROC)SetWindowLong(adaptButton_cont2, GWL_WNDPROC, (LONG)ButtonProc8);
+
+		OldButtonProc17 = (WNDPROC)SetWindowLong(switchoutputButton, GWL_WNDPROC, (LONG)ButtonProc17);
 
 		GetWindowLong(settings, GWL_HINSTANCE);
 
@@ -1523,6 +1730,10 @@ LRESULT CALLBACK WindowProc_set(HWND settings, UINT uMsg, WPARAM wParam, LPARAM 
 			"Keybind"
 		};
 
+		LPSTR outputmodeText[] = {
+			"Output mode"
+		};
+
 		COLORREF crColor = RGB(
 			223,
 			225,
@@ -1568,6 +1779,14 @@ LRESULT CALLBACK WindowProc_set(HWND settings, UINT uMsg, WPARAM wParam, LPARAM 
 			(height_set - height_set*0.575),
 			keybindText[0],
 			8
+		);
+
+		TextOutA(
+			hdc,
+			(width_set - width_set*0.95),
+			(height_set + height_set*0.05 - 45),
+			outputmodeText[0],
+			12
 		);
 
 		EndPaint(settings, &ps);
@@ -1622,7 +1841,7 @@ LRESULT CALLBACK WindowProc_ibm(HWND settings_ibm, UINT uMsg, WPARAM wParam, LPA
 
 		HWND keyButton = CreateWindow(L"button", L"Change",
 			WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
-			(width_set + width_set*0.50), (height_set + 50),
+			(width_set + width_set*0.50), (height_set + 50 - 30),
 			(width_set*0.40), 24,
 			settings_ibm, (HMENU)BUTTON_ID_KEY,
 			hinst_ibm, NULL);
@@ -1631,14 +1850,47 @@ LRESULT CALLBACK WindowProc_ibm(HWND settings_ibm, UINT uMsg, WPARAM wParam, LPA
 
 		HWND keybindscreen = CreateWindowEx(WS_EX_CLIENTEDGE, L"Static", keybind,
 			WS_CHILD | WS_VISIBLE | WS_BORDER | ES_CENTER | ES_READONLY,
-			(width_set - width_set*0.95), (height_set + 50), 
+			(width_set - width_set*0.95), (height_set + 50 - 30), 
 			(width_set*0.60), 24,	// x, y, w, h
 			settings_ibm, (HMENU)(101),
+			hinst_ibm, NULL);
+
+		int ibmoutputmode_int(0);
+		std::string ibmoutputmode = loadibmoutputfile();
+		std::ifstream pathfile(ibmoutputmode);
+		pathfile >> ibmoutputmode_int;
+		pathfile.close();
+
+		if (ibmoutputmode_int == 0)
+		{
+			HWND ibmoutputmodescreen = CreateWindowEx(WS_EX_CLIENTEDGE, L"Static", L"Block",
+				WS_CHILD | WS_VISIBLE | WS_BORDER | ES_CENTER | ES_READONLY,
+				(width_set - width_set*0.95), (height_set + 50 + 20),
+				(width_set*0.60), 24,	// x, y, w, h
+				settings_ibm, (HMENU)(101),
+				hinst_ibm, NULL);
+		}
+		if (ibmoutputmode_int == 1)
+		{
+			HWND ibmoutputmodescreen = CreateWindowEx(WS_EX_CLIENTEDGE, L"Static", L"Spread",
+				WS_CHILD | WS_VISIBLE | WS_BORDER | ES_CENTER | ES_READONLY,
+				(width_set - width_set*0.95), (height_set + 50 + 20),
+				(width_set*0.60), 24,	// x, y, w, h
+				settings_ibm, (HMENU)(101),
+				hinst_ibm, NULL);
+		}
+
+		HWND switchoutputButton = CreateWindow(L"button", L"Switch",
+			WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
+			(width_set + width_set*0.50), (height_set + 50 + 20),
+			(width_set*0.40), 24,
+			settings_ibm, (HMENU)BUTTON_ID_KEY,
 			hinst_ibm, NULL);
 
 		OldButtonProc5 = (WNDPROC)SetWindowLong(keyButton, GWL_WNDPROC, (LONG)ButtonProc5);
 		OldButtonProc13 = (WNDPROC)SetWindowLong(setuserpassButton, GWL_WNDPROC, (LONG)ButtonProc13);
 		OldButtonProc14 = (WNDPROC)SetWindowLong(instructionButton, GWL_WNDPROC, (LONG)ButtonProc14);
+		OldButtonProc16 = (WNDPROC)SetWindowLong(switchoutputButton, GWL_WNDPROC, (LONG)ButtonProc16);
 
 		GetWindowLong(settings_ibm, GWL_HINSTANCE);
 
@@ -1708,6 +1960,10 @@ LRESULT CALLBACK WindowProc_ibm(HWND settings_ibm, UINT uMsg, WPARAM wParam, LPA
 			"Keybind"
 		};
 
+		LPSTR ibmoutputmodesText[] = {
+			"Output mode"
+		};
+
 		COLORREF crColor = RGB(
 			223,
 			225,
@@ -1749,9 +2005,17 @@ LRESULT CALLBACK WindowProc_ibm(HWND settings_ibm, UINT uMsg, WPARAM wParam, LPA
 		TextOutA(
 			hdc,
 			(width_set - width_set*0.95),
-			(height_set + 30),
+			(height_set + 30 - 30),
 			keybindText[0],
 			8
+		);
+
+		TextOutA(
+			hdc,
+			(width_set - width_set*0.95),
+			(height_set + 50),
+			ibmoutputmodesText[0],
+			12
 		);
 
 		EndPaint(settings_ibm, &ps);

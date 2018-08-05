@@ -20,6 +20,8 @@ size_t writeFunction(void *ptr, size_t size, size_t nmemb, std::string* data) {
 }
 
 std::string loaduserpassfile();
+std::string sconvert(const char *pCh, int arraySize);
+std::string loadibmoutputfile();
 
 // curl
 DWORD dwError = ERROR_SUCCESS;
@@ -297,12 +299,7 @@ void readFromIbm(char* &array, int keybind, int &sizeofbuffer)
 	time_t start = time(NULL);
 	time_t seconds = 5; // end ibm while loop after this time has elapsed
 
-	// read file here
-	// Send and receive data on the websocket protocol.
-	dwError = WinHttpWebSocketSend(hWebSocketHandle,
-		WINHTTP_WEB_SOCKET_UTF8_MESSAGE_BUFFER_TYPE,
-		(PVOID)initmsg.c_str(),
-		initmsg.size());
+	// read audio here
 
 	result_mico = waveInStart(hWaveIn_mico);
 
@@ -323,6 +320,12 @@ void readFromIbm(char* &array, int keybind, int &sizeofbuffer)
 	{
 		Sleep(1);
 	}
+
+	// Send and receive data on the websocket protocol.
+	dwError = WinHttpWebSocketSend(hWebSocketHandle,
+		WINHTTP_WEB_SOCKET_UTF8_MESSAGE_BUFFER_TYPE,
+		(PVOID)initmsg.c_str(),
+		initmsg.size());
 
 	dwError = WinHttpWebSocketSend(hWebSocketHandle,
 		WINHTTP_WEB_SOCKET_BINARY_MESSAGE_BUFFER_TYPE,
@@ -356,7 +359,6 @@ void readFromIbm(char* &array, int keybind, int &sizeofbuffer)
 			break;
 	}
 	array[sizeofbuffer + 1] = '\0';
-
 	waveInUnprepareHeader(hWaveIn_mico, &WaveInHdr_mic, sizeof(WAVEHDR));
 	ZeroMemory(&WaveInHdr_mic, sizeof(WAVEHDR));
 }
@@ -527,6 +529,12 @@ void startIbmTts()
 	keybind_ibm = viewKey();
 	getIBMTTS();
 
+	int ibmoutputmode_int(0);
+	std::string ibmoutputmode = loadibmoutputfile();
+	std::ifstream pathfile(ibmoutputmode);
+	pathfile >> ibmoutputmode_int;
+	pathfile.close();
+
 	INPUT ip2;
 	ip2.type = INPUT_KEYBOARD;
 	ip2.ki.wScan = 0;
@@ -540,46 +548,81 @@ void startIbmTts()
 	readFromFirstIbm(temparray, keybind_ibm, sizeofbuffer);
 
 	std::thread keepIbmAlive(sendsilence);
-	while (inputting)
+
+	if (ibmoutputmode_int == 0)
 	{
-		Sleep(1);			// cheap way of lowering cpu usage. should be fine though since user must hold keybind to get input
-		if (micState_ibm == true) 
+		while (inputting)
 		{
-			while ((GetKeyState(keybind_ibm) & 0x80) != 0) {					// when user press the keybind start input
-				char * ibmarray = nullptr;
-				checkifcansilence = false;
-				//setupmicrophone();
-				readFromIbm(ibmarray, keybind_ibm, sizeofbuffer);
-				int countofarray(0), totalcountofarray(0);
-				int * dividedarraysizeofbuffer = nullptr;
-				char ** dividedarray = nullptr;
-				dividearrays(ibmarray, dividedarray, sizeofbuffer, totalcountofarray, dividedarraysizeofbuffer);
-				while (countofarray != totalcountofarray)
-				{
+			Sleep(1);			// cheap way of lowering cpu usage. should be fine though since user must hold keybind to get input
+			if (micState_ibm == true)
+			{
+				while ((GetKeyState(keybind_ibm) & 0x80) != 0) {					// when user press the keybind start input
+					char * ibmarray = nullptr;
+					checkifcansilence = false;
+					//setupmicrophone();
+					readFromIbm(ibmarray, keybind_ibm, sizeofbuffer);
 					pressEnter(ip2);
-					alpaOut(dividedarray[countofarray], dividedarraysizeofbuffer[countofarray]);
+					alpaOut(ibmarray, sizeofbuffer);
 					Sleep(60);
 					pressEnter(ip2);
-					++countofarray;
+					if (sizeofbuffer != 0)
+					{
+						delete[] ibmarray;
+					}
+					ibmarray = nullptr;
+					checkifcansilence = true;
 				}
-				if (sizeofbuffer != 0)
-				{
-					// might have to add this to above too
-					delete[] ibmarray;
-					delete[] dividedarraysizeofbuffer;
-					delete[] dividedarray;
-				}
-				ibmarray = nullptr;
-				dividedarraysizeofbuffer = nullptr;
-				dividedarray = nullptr;
-				checkifcansilence = true;
+			}
+			if (micClose_ibm == true)
+			{
+				inputting = false;
 			}
 		}
-		if (micClose_ibm == true)
+	}
+	if (ibmoutputmode_int == 1)
+	{
+		while (inputting)
 		{
-			inputting = false;
+			Sleep(1);			// cheap way of lowering cpu usage. should be fine though since user must hold keybind to get input
+			if (micState_ibm == true)
+			{
+				while ((GetKeyState(keybind_ibm) & 0x80) != 0) {					// when user press the keybind start input
+					char * ibmarray = nullptr;
+					checkifcansilence = false;
+					//setupmicrophone();
+					readFromIbm(ibmarray, keybind_ibm, sizeofbuffer);
+					int countofarray(0), totalcountofarray(0);
+					int * dividedarraysizeofbuffer = nullptr;
+					char ** dividedarray = nullptr;
+					dividearrays(ibmarray, dividedarray, sizeofbuffer, totalcountofarray, dividedarraysizeofbuffer);
+					while (countofarray != totalcountofarray)
+					{
+						pressEnter(ip2);
+						alpaOut(dividedarray[countofarray], dividedarraysizeofbuffer[countofarray]);
+						Sleep(60);
+						pressEnter(ip2);
+						++countofarray;
+					}
+					if (sizeofbuffer != 0)
+					{
+						// might have to add this to above too
+						delete[] ibmarray;
+						delete[] dividedarraysizeofbuffer;
+						delete[] dividedarray;
+					}
+					ibmarray = nullptr;
+					dividedarraysizeofbuffer = nullptr;
+					dividedarray = nullptr;
+					checkifcansilence = true;
+				}
+			}
+			if (micClose_ibm == true)
+			{
+				inputting = false;
+			}
 		}
 	}
+	
 	keepIbmAlive.join();
 	closeIBMTTS();
 }
@@ -614,4 +657,146 @@ bool checkforhandlenull()
 	{
 		return false;
 	}
+}
+
+std::string loadibmoutputfile()
+{
+	// load exe
+	char exe_path[MAX_PATH];
+	char* ibm_outputmode = nullptr;
+	HMODULE hmodule = GetModuleHandle(NULL);
+	GetModuleFileNameA(hmodule, exe_path, (sizeof(exe_path)));
+	int directorysize(0);
+
+	for (int count(0); count < 260; ++count)
+	{
+		++directorysize;
+		// find LoLvoice.exe
+		if (exe_path[count] == 'L')
+		{
+			if (exe_path[count + 1] == 'o')
+			{
+				if (exe_path[count + 2] == 'L')
+				{
+					if (exe_path[count + 3] == 'v')
+					{
+						if (exe_path[count + 4] == 'o')
+						{
+							if (exe_path[count + 5] == 'i')
+							{
+								if (exe_path[count + 6] == 'c')
+								{
+									if (exe_path[count + 7] == 'e')
+									{
+										if (exe_path[count + 8] == '.')
+										{
+											if (exe_path[count + 9] == 'e')
+											{
+												if (exe_path[count + 10] == 'x')
+												{
+													if (exe_path[count + 11] == 'e')
+													{
+														break;
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	ibm_outputmode = new char[directorysize + 20 + 1];
+	char ibmoutputmodefilename[22] = "Config/ibm_outputmode";
+
+	for (int count(0); count < directorysize - 1; ++count)
+	{
+		ibm_outputmode[count] = exe_path[count];
+	}
+	for (int count(0); count < 21; ++count)
+	{
+		ibm_outputmode[directorysize - 1 + count] = ibmoutputmodefilename[count];
+	}
+	ibm_outputmode[directorysize + 20] = '\0';
+
+	std::string ibmoutputfinalpath = sconvert(ibm_outputmode, (directorysize + 20 + 1));
+	delete[] ibm_outputmode;
+	ibm_outputmode = nullptr;
+	return ibmoutputfinalpath;
+}
+
+std::string loadibmoutputtempfile()
+{
+	// load exe
+	char exe_path[MAX_PATH];
+	char* ibm_outputmode = nullptr;
+	HMODULE hmodule = GetModuleHandle(NULL);
+	GetModuleFileNameA(hmodule, exe_path, (sizeof(exe_path)));
+	int directorysize(0);
+
+	for (int count(0); count < 260; ++count)
+	{
+		++directorysize;
+		// find LoLvoice.exe
+		if (exe_path[count] == 'L')
+		{
+			if (exe_path[count + 1] == 'o')
+			{
+				if (exe_path[count + 2] == 'L')
+				{
+					if (exe_path[count + 3] == 'v')
+					{
+						if (exe_path[count + 4] == 'o')
+						{
+							if (exe_path[count + 5] == 'i')
+							{
+								if (exe_path[count + 6] == 'c')
+								{
+									if (exe_path[count + 7] == 'e')
+									{
+										if (exe_path[count + 8] == '.')
+										{
+											if (exe_path[count + 9] == 'e')
+											{
+												if (exe_path[count + 10] == 'x')
+												{
+													if (exe_path[count + 11] == 'e')
+													{
+														break;
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	ibm_outputmode = new char[directorysize + 25 + 1];
+	char ibmoutputmodefilename[27] = "Config/ibm_outputmode_temp";
+
+	for (int count(0); count < directorysize - 1; ++count)
+	{
+		ibm_outputmode[count] = exe_path[count];
+	}
+	for (int count(0); count < 26; ++count)
+	{
+		ibm_outputmode[directorysize - 1 + count] = ibmoutputmodefilename[count];
+	}
+	ibm_outputmode[directorysize + 25] = '\0';
+
+	std::string ibmoutputfinalpath = sconvert(ibm_outputmode, (directorysize + 25 + 1));
+	delete[] ibm_outputmode;
+	ibm_outputmode = nullptr;
+	return ibmoutputfinalpath;
 }
