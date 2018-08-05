@@ -9,10 +9,10 @@
 
 5. Under "Cloud Foundry Services", you should see "Speech to Text". Click on it.
 
-6. Click "Show" and copy the username and password (without the quotation marks) into LoLvoice, IBM-STT mode settings.
+6. Click "Show" and copy the username and password (without the quotation marks) into LoLvoice, IBM-STT mode settings. Remember to press "Confirm".
 ![alt text](https://raw.githubusercontent.com/impeccableaslan/LoLvoice/master/createIBMaccountguide/Capture3.PNG)
 For users whose url is not "https://stream.watsonplatform.net/speech-to-text/api", please send me a message at https://www.reddit.com/user/impeccableaslan. LoLvoice may not work for you if your url is different but this can be easily fixed.
 
-The settings for LoLvoice IBM-STT mode can be accessed by clicking on the gear icon after selecting IBM-STT mode.
+For users who are unaware, the settings for LoLvoice IBM-STT mode can be accessed by clicking on the gear icon after selecting IBM-STT mode.
 ![alt text](https://raw.githubusercontent.com/impeccableaslan/LoLvoice/master/createIBMaccountguide/Capture4.PNG)
 
