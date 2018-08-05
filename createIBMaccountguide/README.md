@@ -1,5 +1,5 @@
 1. Create an account here: [signup](https://console.bluemix.net/registration/?target=%2Fcatalog%2Fservices%2Fspeech-to-text%3FhideTours%3Dtrue%26-_-Watson%2BCore_Watson%2BCore%2B-%2BPlatform-_-WW_WW-_-wdc-ref%26-_-Watson%2BCore_Watson%2BCore%2B-%2BPlatform-_-WW_WW-_-wdc-ref%26cm_mmca1%3D000000OF%26cm_mmca2%3D10000409&cm_mc_uid=99138951242315297549410&cm_mc_sid_50200000=42778731533448248875&cm_mc_sid_52640000=30373961533448248877)
-![alt text](https://raw.githubusercontent.com/impeccableaslan/LoLvoice/master/createIBMaccountguide/Capture.PNG)
+![alt text](https://raw.githubusercontent.com/impeccableaslan/LoLvoice/master/createIBMaccountguide/Capture1.PNG)
 
 2. Sign in here: [signin](https://idaas.iam.ibm.com/idaas/mtfim/sps/authsvc?PolicyId=urn:ibm:security:authentication:asf:basicldapuser). You should be automatically taken to a page describing IBM's speech to text API.
 
