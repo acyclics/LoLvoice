@@ -13,6 +13,6 @@
 ![alt text](https://raw.githubusercontent.com/impeccableaslan/LoLvoice/master/createIBMaccountguide/Capture3.PNG)
 For users whose url is not "https://stream.watsonplatform.net/speech-to-text/api", please send me a message at https://www.reddit.com/user/impeccableaslan. LoLvoice may not work for you if your url is different but this can be easily fixed.
 
-The settings can be accessed by clicking on the gear icon after selecting IBM-STT mode.
+The settings for LoLvoice IBM-STT mode can be accessed by clicking on the gear icon after selecting IBM-STT mode.
 ![alt text](https://raw.githubusercontent.com/impeccableaslan/LoLvoice/master/createIBMaccountguide/Capture4.PNG)
 
