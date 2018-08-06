@@ -1,5 +1,5 @@
 # LoLvoice
-An application that "types" into League of Legend's in-game chat what you speak into your microphone. Basically voice chat for LoL.
+An application that "types" into League of Legend's in-game chat what you speak into your microphone. Basically voice chat for solo-queue.
 
 Currently available on Windows and is coded primarily in C/C++.
 
@@ -16,7 +16,7 @@ As with all LoL-related projects, use at your own risk. As a reassurance, I have
 
 ![alt text](https://raw.githubusercontent.com/impeccableaslan/LoLvoice/master/riotresponse.PNG)
 
-LoLvoice, basically voice chat, doesn't automate the game (it doesn't play the game for you) and instead provides accessibility -- an option to communicate to players with in-game chat through your voice. Needless to say, LoLvoice is not a macro program either since you can't use it to "chain abilities" etc. Therefore, please be reassured that LoLvoice does not violate any policies and you are free to use it in your games to come.
+LoLvoice doesn't automate the game (it doesn't play the game for you) and instead provides accessibility -- an option to communicate to players with in-game chat through your voice. Needless to say, LoLvoice is not a macro program either since you can't use it to "chain abilities" etc. Therefore, please be reassured that LoLvoice does not violate any policies and you are free to use it in your games to come.
 
 # Pre-requisites
 The following softwares must be installed in order for LoLvoice to work:
