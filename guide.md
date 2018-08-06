@@ -3,6 +3,8 @@ LoLvoice can convert what you speak into your microphone to League of Legend's i
 
 
 # Usage
+LoLvoice requires administrator permission.
+
 The first time you use LoLvoice, it will prompt you to enter the path of LoLvoice folder. You can simply leave it at the default path and press "Set Path".
 
 Then, you should see a screen that allows you to choose modes. LoLvoice have three modes: Sphinx, IBM_STT, and Overdrive. I shall proceed to describe each one in detail. Note that all three modes are used the same way:
