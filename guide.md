@@ -28,7 +28,7 @@ IBM-STT mode uses IBM's Watson Speech-to-Text cloud API to transcript speech to 
 
 If the account creation process or the instructions below are hard to follow, here is a guide to creating an IBM account and using it in LoLvoice: [ibm account creation and implementation guide](https://github.com/impeccableaslan/LoLvoice/blob/master/createIBMaccountguide/README.md).
 
-After you created the account, click the gear icon in LoLvoice and you should see input fields for username and password. Both of these are provided by IBM after you have created your account so input these and press "confirm". Allow time for LoLvoice to register your username and password, then you can press "start" and begin voice chatting.
+After you created the account, click the gear icon in LoLvoice and you should see input fields for username and password. Both of these are provided by IBM after you have created your account. Note that what we are looking for here is not the username and password of your ibm account but the credentials to use their API. If you don't know what these credentials are, read this: [ibm account creation and implementation guide](https://github.com/impeccableaslan/LoLvoice/blob/master/createIBMaccountguide/README.md). After you got the credentials, input it into LoLvoice input fields for username and password, then press "confirm". Allow time for LoLvoice to register your username and password, then you can press "start" and begin voice chatting.
 
 Note that on first use, an error will pop-up stating it failed to connect to IBM. This is because you haven't enter the username and password yet, hence the error. You can ignore it and go on ahead with entering the username and password.
 
