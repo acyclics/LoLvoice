@@ -3,7 +3,7 @@
 
 2. Sign in here: [signin](https://idaas.iam.ibm.com/idaas/mtfim/sps/authsvc?PolicyId=urn:ibm:security:authentication:asf:basicldapuser). You should be automatically taken to a page describing IBM's speech to text API.
 
-3. The "Create" button on the lower right hand side will initially be unclickable. Once it configures itself, you will be able to. So, press "Create".
+3. The "Create" button on the lower right hand side will initially be unclickable. Once it configures itself, you will be able to. But, before you click "Create", you must open the scrolldown menu titled "Choose a region/location to deploy in" and select "US South". Then, you can press "Create".
 
 4. It should then take you to your Dashboard. If not, simply click the logo "IBM Cloud" located at the upper left.
 
