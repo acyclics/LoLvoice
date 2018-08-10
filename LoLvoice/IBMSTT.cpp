@@ -316,7 +316,7 @@ void readFromIbm(char* &array, int keybind, int &sizeofbuffer)
 	waveInClose(hWaveIn_mico);
 
 	// when connection is being re-established to ibm, we pause here so the connection can be completed before we send audio data
-	while ((checkifcansend == false) && hWebSocketHandle == NULL)
+	while ((checkifcansend == false))
 	{
 		Sleep(1);
 	}
@@ -337,6 +337,8 @@ void readFromIbm(char* &array, int keybind, int &sizeofbuffer)
 		(PVOID)closemsg.c_str(),
 		closemsg.size());
 
+	int startcount(0);
+	bool exitwhileloop = false;
 	start = time(NULL);
 	time_t endwait = start + seconds;
 	while (start < endwait)
@@ -347,15 +349,31 @@ void readFromIbm(char* &array, int keybind, int &sizeofbuffer)
 			dwBufferLength,
 			&dwBytesTransferred,
 			&eBufferType);
-		if (rgbBuffer[133] == '"')
+
+		for (int count(100); count < dwBufferLength; ++count)
+		{
+			if (rgbBuffer[count - 1] == 'p')
+			{
+				if (rgbBuffer[count] == 't')
+				{
+					startcount = count + 5;
+					exitwhileloop = true;
+					break;
+				}
+			}
+		}
+
+		if (exitwhileloop == true)
+		{
 			break;
+		}
 	}
 
 	array = new char[dwBytesTransferred / sizeof(rgbBuffer[0]) + 1];
 	for (sizeofbuffer; sizeofbuffer < (dwBytesTransferred / sizeof(rgbBuffer[0])); ++sizeofbuffer)
 	{
-		array[sizeofbuffer] = rgbBuffer[134 + sizeofbuffer];
-		if (rgbBuffer[134 + sizeofbuffer + 1] == '"')
+		array[sizeofbuffer] = rgbBuffer[startcount + sizeofbuffer];
+		if (rgbBuffer[startcount + sizeofbuffer + 1] == '"')
 			break;
 	}
 	array[sizeofbuffer + 1] = '\0';
@@ -431,6 +449,10 @@ void sendsilence()
 			checkifcansend = false;
 			closeIBMTTS();
 			getIBMTTS();
+			while (hWebSocketHandle == NULL)
+			{
+				Sleep(1);
+			}
 			checkifcansend = true;
 		}
 		if (inputting == false)
@@ -565,6 +587,7 @@ void startIbmTts()
 					alpaOut(ibmarray, sizeofbuffer);
 					Sleep(60);
 					pressEnter(ip2);
+					
 					if (sizeofbuffer != 0)
 					{
 						delete[] ibmarray;
