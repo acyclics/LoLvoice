@@ -1137,6 +1137,9 @@ LRESULT CALLBACK ButtonProc13(HWND settings_ibm, UINT uMsg, WPARAM wp, LPARAM lp
 		finaluserpasspatharray = nullptr;
 		delete[] userpasstemppatharray;
 		userpasstemppatharray = nullptr;
+
+		MessageBoxA(NULL, "Username and password saved. A restart of the program is needed. The program will now exit.", "ERROR", MB_ICONWARNING | MB_DEFBUTTON2);
+		exit(-1);
 	}
 		break;
 	}
