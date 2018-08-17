@@ -46,6 +46,12 @@ Personally, I would recommend IBM-STT mode. The setup is not that difficult and 
 
 Regarding Overdrive mode, I think its usage is complicated which strips away the convenience a "voice chat" program should bring. Then again, if Sphinx mode works fine for you for short phrases and you want to use IBM-STT mode for long phrases, I think Overdrive mode might be the right mode in your case.
 
+# All chat
+All chat can be enabled in the settings (accessed by pressing the gear icon). Using the keybind assigned to "all chat" types your speech into LoL's "all" chat.
+
+# Cancel sentence
+Sometimes when you started speaking you might want to cancel the sentence being typed. You can do this by pressing the keybind assigned to "cancel sentence" in the settings. Note the "cancel sentence" keybind must be pressed while the "push-to-talk" keybind is held for the sentence to cancel.
+
 # Things to note
 - Since LoLvoice basically simulate keystrokes, refrain from doing anything that would close LoL's in-game chat such as left-clicking (you can still right-click to move your character) or pressing the "escape" button. For users that might have switched their controls from the default, understand that you can still move your character when "typing" with LoLvoice.
 
