@@ -22,12 +22,18 @@ cmd_ln_t *config;                  // create configuration structure
 ad_rec_t *ad;                      // create audio recording structure - for use with ALSA functions
 
 int viewKey();
+int viewCancelKey();
 void initializePaths();
 bool checkifmllrexist();
 std::string sconvert(const char *pCh, int arraySize);
 std::string loadconfigfile();
 void dividearrays_sphinx(char array1[], char** &array2, int sizeofarray1, int &numberofphrase, int* &dividedarraysize);
 std::string loadsphinxoutputfile();
+
+// all chat
+void typeAllChat();
+std::string loadallchatfile();
+int viewAllChatKey();
 
 // char arrays for loading file paths
 char * array_file = nullptr;
@@ -42,6 +48,9 @@ char mllr_path[27] = "/adapt/records/mllr_matrix";
 int sizee(0);
 std::string line;
 int keybind(0);
+int cancelkeybind(0);
+int allchatkeybind(0);
+int sphinxallchatbutton_int(0);
 
 void inputFile()
 {
@@ -168,12 +177,19 @@ void startRecord()
 	mllr_file = nullptr;
 
 	keybind = viewKey();		// load keybind from config file
+	cancelkeybind = viewCancelKey();
+	allchatkeybind = viewAllChatKey();
 
 	int sphinxoutputmode_int(0);
 	std::string sphinxoutputmode = loadsphinxoutputfile();
 	std::ifstream pathfile(sphinxoutputmode);
 	pathfile >> sphinxoutputmode_int;
 	pathfile.close();
+
+	std::string allchatfile = loadallchatfile();
+	std::ifstream allchatpathfile(allchatfile);
+	allchatpathfile >> sphinxallchatbutton_int;
+	allchatpathfile.close();
 
 	// string decoded_speech;
 	INPUT ip2;
@@ -188,7 +204,8 @@ void startRecord()
 		while (switcher)
 		{
 			Sleep(1);									// cheap way of lowering cpu usage. should be fine though since user must hold keybind to input
-			if (micState == true) {
+			if (micState == true) 
+			{
 				while ((GetKeyState(keybind) & 0x80) != 0)
 				{					// when user press the keybind start input
 					std::string decoded_speech = recognize_from_microphone();          // call the function to capture and decode speech
@@ -197,7 +214,21 @@ void startRecord()
 					Sleep(60);													// must edit this and adjust for in-game
 					pressEnter(ip2);
 				}
+
+				if (sphinxallchatbutton_int == 1)
+				{
+					while ((GetKeyState(allchatkeybind) & 0x80) != 0)
+					{					// when user press the keybind start input
+						std::string decoded_speech = recognize_from_microphone();          // call the function to capture and decode speech
+						pressEnter(ip2);
+						typeAllChat();
+						alpaOut_string(decoded_speech);
+						Sleep(60);													// must edit this and adjust for in-game
+						pressEnter(ip2);
+					}
+				}
 			}
+		
 			if (micClose == true)
 			{
 				ad_close(ad);
@@ -226,7 +257,8 @@ void startRecord()
 		while (switcher)
 		{
 			Sleep(1);									// cheap way of lowering cpu usage. should be fine though since user must hold keybind to input
-			if (micState == true) {
+			if (micState == true) 
+			{
 				while ((GetKeyState(keybind) & 0x80) != 0)
 				{					// when user press the keybind start input
 					std::string decoded_speech = recognize_from_microphone();          // call the function to capture and decode speech           
@@ -253,7 +285,38 @@ void startRecord()
 					dividedarraysizeofbuffer = nullptr;
 					dividedarray = nullptr;
 				}
+
+				if (sphinxallchatbutton_int == 1) {
+					while ((GetKeyState(allchatkeybind) & 0x80) != 0)
+					{					// when user press the keybind start input
+						std::string decoded_speech = recognize_from_microphone();          // call the function to capture and decode speech           
+						char char_array[1000];
+						strcpy_s(char_array, decoded_speech.c_str());
+						int countofarray(0), totalcountofarray(0);
+						int * dividedarraysizeofbuffer = nullptr;
+						char ** dividedarray = nullptr;
+						dividearrays_sphinx(char_array, dividedarray, decoded_speech.length() / sizeof(decoded_speech[0]), totalcountofarray, dividedarraysizeofbuffer);
+						while (countofarray != totalcountofarray)
+						{
+							pressEnter(ip2);
+							typeAllChat();
+							alpaOut(dividedarray[countofarray], dividedarraysizeofbuffer[countofarray]);
+							Sleep(60);
+							pressEnter(ip2);
+							++countofarray;
+						}
+						if (decoded_speech.length() / sizeof(decoded_speech[0]) != 0)
+						{
+							// might have to add this to above too
+							delete[] dividedarraysizeofbuffer;
+							delete[] dividedarray;
+						}
+						dividedarraysizeofbuffer = nullptr;
+						dividedarray = nullptr;
+					}
+				}
 			}
+			
 			if (micClose == true)
 			{
 				ad_close(ad);
@@ -311,15 +374,62 @@ std::string recognize_from_microphone()
 		}
 	*/
 
-		if (!((GetKeyState(keybind) & 0x80) != 0) && utt_started) {             // if keybind is released and the utt_started flag is true 
+		if (!((GetKeyState(keybind) & 0x80) != 0) && utt_started && !((GetKeyState(allchatkeybind) & 0x80) != 0))
+		{             // if keybind is released and the utt_started flag is true 
 			!in_speech;
 			ps_end_utt(ps);                          // then mark the end of the utterance
 			ad_stop_rec(ad);                         // stop recording
+			if ((GetKeyState(cancelkeybind) & 0x80) != 0)
+			{
+				std::string empty = "";
+				return empty;
+				break;
+			}
 			hyp = ps_get_hyp(ps, NULL);             // query pocketsphinx for "hypothesis" of decoded statement
 			return hyp;                              // the function returns the hypothesis
 			break;                                   // exit the while loop and return to main
 		}
 		
+		// cancels sentence on press of keybind
+		if ((GetKeyState(cancelkeybind) & 0x80) != 0)
+		{
+			!in_speech;
+			ps_end_utt(ps);                          // then mark the end of the utterance
+			ad_stop_rec(ad);                         // stop recording
+			std::string empty = "";
+			return empty;
+			break;
+		}
+
+		if (sphinxallchatbutton_int == 1)
+		{
+			if (!((GetKeyState(allchatkeybind) & 0x80) != 0) && utt_started && !((GetKeyState(keybind) & 0x80) != 0))
+			{             // if keybind is released and the utt_started flag is true 
+				!in_speech;
+				ps_end_utt(ps);                          // then mark the end of the utterance
+				ad_stop_rec(ad);                         // stop recording
+				if ((GetKeyState(cancelkeybind) & 0x80) != 0)
+				{
+					std::string empty = "";
+					return empty;
+					break;
+				}
+				hyp = ps_get_hyp(ps, NULL);             // query pocketsphinx for "hypothesis" of decoded statement
+				return hyp;                              // the function returns the hypothesis
+				break;                                   // exit the while loop and return to main
+			}
+
+			// cancels sentence on press of keybind
+			if ((GetKeyState(cancelkeybind) & 0x80) != 0)
+			{
+				!in_speech;
+				ps_end_utt(ps);                          // then mark the end of the utterance
+				ad_stop_rec(ad);                         // stop recording
+				std::string empty = "";
+				return empty;
+				break;
+			}
+		}
 	}
 
 }
@@ -660,6 +770,19 @@ void changeKeybind()
 	keybind = viewKey();
 }
 
+void changeCancelKeybind()
+{
+	cancelkeybind = viewCancelKey();
+}
+
+void changeAllChatSettings()
+{
+	std::string allchatfile = loadallchatfile();
+	std::ifstream allchatpathfile(allchatfile);
+	allchatpathfile >> sphinxallchatbutton_int;
+	allchatpathfile.close();
+}
+
 bool checkifsphinxfilesnotloaded()
 {
 	if (psChecker())
@@ -809,3 +932,4 @@ std::string loadsphinxoutputtempfile()
 	sphinx_outputmode = nullptr;
 	return sphinxoutputfinalpath;
 }
+

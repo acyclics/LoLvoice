@@ -36,6 +36,8 @@ char* groundbmp = nullptr;
 char* sphinxbmp = nullptr;
 char* ibmsttbmp = nullptr;
 char* overdrivebmp = nullptr;
+char* lmagebmp_toggled = nullptr;
+char* lmage_stop_toggled = nullptr;
 HBITMAP hBitmap01 = NULL;
 HBITMAP hBitmap02 = NULL;
 HBITMAP hBitmap03 = NULL;
@@ -44,6 +46,8 @@ HBITMAP hBitmap05 = NULL;
 HBITMAP hBitmap06 = NULL;
 HBITMAP hBitmap07 = NULL;
 HBITMAP hBitmap08 = NULL;
+HBITMAP hBitmap09 = NULL;
+HBITMAP hBitmap10 = NULL;
 
 void startRecord();
 void openMic();
@@ -76,17 +80,25 @@ std::string loadpathinifile();
 std::string loadpathtempfile();
 std::string loaduserpassfile();
 std::string loaduserpasstempfile();
+std::string loadallchatfile();
+std::string loadallchattempfile();
 void loadbitmaps(char* bitnameptr, const char* bitname, const int sizeofbitname);
 void loadbitmaps_default(char* bitnameptr, const char* bitname, const int sizeofbitname);
 bool checkiffoldersexist(std::string folder);
 
 void detectKeyPress();
 void detectOverdriveKeyPress();
+void detectCancelKeyPress();
+void detectAllChatKeyPress();
 int viewKey();
 int viewOverdriveKey();
+int viewCancelKey();
+int viewAllChatKey();
 LPCTSTR intToKey(int hex);
 void loadVariablesWindow();
 void createPathtoExeDirectory(char* &defaultpath, int &length);
+void changeIbmAllChatSettings();
+void changeAllChatSettings();
 
 bool isSphinx = false;
 bool isIbm = false;
@@ -97,6 +109,10 @@ void closeIbmtts();
 void endIbmstt();
 void overdriveKeybind();
 void changeKeybind();
+void changeIbmKeybind();
+void changeCancelKeybind();
+void changeIbmCancelKeybind();
+void changeIbmAllChatKeybind();
 
 std::string loadibmoutputfile();
 std::string loadibmoutputtempfile();
@@ -111,7 +127,10 @@ struct StateInfo {
 HINSTANCE hInst;
 WNDCLASS wc_set = {}, wc_ibm = {}, wc_overdrive = {};
 HINSTANCE hinst_set, hinst_path, hinst_speech, hinst_ibm, hinst_overdrive;
-HWND setwindow, setkeybind, adaptbutton, adaptchange, adaptbuttoncont, adaptbuttoncont2, path_input, parentwindow, pathactwindow, pathButton, speechwindow, username, password, setuserpassButton, setoverdrivebind, windowforsettings;
+HWND setwindow, setkeybind, adaptbutton, adaptchange, adaptbuttoncont, adaptbuttoncont2;
+HWND path_input, parentwindow, pathactwindow, pathButton, speechwindow, username, password;
+HWND setuserpassButton, setoverdrivebind, windowforsettings, startbuttontoggle, stopbuttontoggle;
+HWND setcancelkeybind, setallchatkeybind, allchatenableButton;
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow)
 {
@@ -306,6 +325,9 @@ WNDPROC OldButtonProc14;
 WNDPROC OldButtonProc15;
 WNDPROC OldButtonProc16;
 WNDPROC OldButtonProc17;
+WNDPROC OldButtonProc18;
+WNDPROC OldButtonProc19;
+WNDPROC OldButtonProc20;
 
 LRESULT CALLBACK ButtonProc(HWND hwnd, UINT uMsg, WPARAM wp, LPARAM lp)
 {
@@ -387,6 +409,9 @@ LRESULT CALLBACK ButtonProc(HWND hwnd, UINT uMsg, WPARAM wp, LPARAM lp)
 				}
 			}
 		}
+
+		SendMessage(startbuttontoggle, BM_SETIMAGE, (WPARAM)IMAGE_BITMAP, (LPARAM)hBitmap09);
+		SendMessage(stopbuttontoggle, BM_SETIMAGE, (WPARAM)IMAGE_BITMAP, (LPARAM)hBitmap03);
 	}
 		break;
 	}
@@ -413,6 +438,9 @@ LRESULT CALLBACK ButtonProc2(HWND hwnd, UINT uMsg, WPARAM wp, LPARAM lp)
 			closeIbmtts();
 			closeMic();
 		}
+
+		SendMessage(stopbuttontoggle, BM_SETIMAGE, (WPARAM)IMAGE_BITMAP, (LPARAM)hBitmap10);
+		SendMessage(startbuttontoggle, BM_SETIMAGE, (WPARAM)IMAGE_BITMAP, (LPARAM)hBitmap02);
 	}
 		break;
 	}
@@ -443,7 +471,7 @@ LRESULT CALLBACK ButtonProc3(HWND hwnd, UINT uMsg, WPARAM wp, LPARAM lp)
 				WS_OVERLAPPEDWINDOW^WS_THICKFRAME^WS_MAXIMIZEBOX | WS_POPUPWINDOW,            // Window style
 
 																							  // Size and position
-				xPos, yPos, 400, 300,
+				xPos, yPos, 400, 500,
 
 				NULL,       // Parent window    
 				NULL,       // Menu
@@ -479,7 +507,7 @@ LRESULT CALLBACK ButtonProc3(HWND hwnd, UINT uMsg, WPARAM wp, LPARAM lp)
 				WS_OVERLAPPEDWINDOW^WS_THICKFRAME^WS_MAXIMIZEBOX | WS_POPUPWINDOW,            // Window style
 
 																							  // Size and position
-				xPos, yPos, 400, 300,
+				xPos, yPos, 400, 500,
 
 				NULL,       // Parent window    
 				NULL,       // Menu
@@ -515,7 +543,7 @@ LRESULT CALLBACK ButtonProc3(HWND hwnd, UINT uMsg, WPARAM wp, LPARAM lp)
 				WS_OVERLAPPEDWINDOW^WS_THICKFRAME^WS_MAXIMIZEBOX | WS_POPUPWINDOW,            // Window style
 
 																							  // Size and position
-				xPos, yPos, 400, 300,
+				xPos, yPos, 400, 500,
 
 				NULL,       // Parent window    
 				NULL,       // Menu
@@ -622,6 +650,7 @@ LRESULT CALLBACK ButtonProc5(HWND settings, UINT uMsg, WPARAM wp, LPARAM lp)
 			keybind
 		);
 		changeKeybind();
+		changeIbmKeybind();
 	}
 		break;
 	}
@@ -1267,7 +1296,7 @@ LRESULT CALLBACK ButtonProc16(HWND settings_ibm, UINT uMsg, WPARAM wp, LPARAM lp
 	return CallWindowProc(OldButtonProc16, settings_ibm, uMsg, wp, lp);
 }
 
-LRESULT CALLBACK ButtonProc17(HWND settings_ibm, UINT uMsg, WPARAM wp, LPARAM lp)
+LRESULT CALLBACK ButtonProc17(HWND settings, UINT uMsg, WPARAM wp, LPARAM lp)
 {
 	switch (uMsg) {
 	case WM_LBUTTONDOWN:
@@ -1344,7 +1373,167 @@ LRESULT CALLBACK ButtonProc17(HWND settings_ibm, UINT uMsg, WPARAM wp, LPARAM lp
 	break;
 	}
 
-	return CallWindowProc(OldButtonProc17, settings_ibm, uMsg, wp, lp);
+	return CallWindowProc(OldButtonProc17, settings, uMsg, wp, lp);
+}
+
+LRESULT CALLBACK ButtonProc18(HWND settings, UINT uMsg, WPARAM wp, LPARAM lp)
+{
+	switch (uMsg) {
+	case WM_LBUTTONDOWN:
+	{
+		LPCTSTR setting = L"Enter new key: ";
+
+		SetWindowText(
+			setcancelkeybind,
+			setting
+		);
+
+		std::thread keying(detectCancelKeyPress);
+		keying.join();
+
+		LPCTSTR keybind = intToKey(viewCancelKey());
+
+		SetWindowText(
+			setcancelkeybind,
+			keybind
+		);
+		changeCancelKeybind();
+		changeIbmCancelKeybind();
+	}
+	break;
+	}
+
+	return CallWindowProc(OldButtonProc18, settings, uMsg, wp, lp);
+}
+
+LRESULT CALLBACK ButtonProc19(HWND settings, UINT uMsg, WPARAM wp, LPARAM lp)
+{
+	switch (uMsg) {
+	case WM_LBUTTONDOWN:
+	{
+		LPCTSTR setting = L"Enter new key: ";
+
+		SetWindowText(
+			setallchatkeybind,
+			setting
+		);
+
+		std::thread keying(detectAllChatKeyPress);
+		keying.join();
+
+		LPCTSTR keybind = intToKey(viewAllChatKey());
+
+		SetWindowText(
+			setallchatkeybind,
+			keybind
+		);
+		
+		changeIbmAllChatKeybind();
+
+	}
+	break;
+	}
+
+	return CallWindowProc(OldButtonProc19, settings, uMsg, wp, lp);
+}
+
+LRESULT CALLBACK ButtonProc20(HWND settings, UINT uMsg, WPARAM wp, LPARAM lp)
+{
+	switch (uMsg) {
+	case WM_LBUTTONDOWN:
+	{
+		int allchatbutton_int(0);
+		std::string allchatfile = loadallchatfile();
+		std::ifstream allchatpathfile(allchatfile);
+		allchatpathfile >> allchatbutton_int;
+		allchatpathfile.close();
+
+		if (allchatbutton_int == 0)
+		{
+			std::string allchatpath = loadallchatfile();
+			std::string allchatpath_temp = loadallchattempfile();
+
+			std::ofstream mytempfile;
+			mytempfile.open(allchatpath_temp, std::ios::app | std::ios::in);
+			mytempfile << 1;
+			mytempfile.close();
+
+			char* finalallchatarray = new char[allchatpath.length() / sizeof(allchatpath[0]) + 1];
+			char* allchattemparray = new char[allchatpath_temp.length() / sizeof(allchatpath_temp[0]) + 1];
+
+			for (int count(0); count<allchatpath.length() / sizeof(allchatpath[0]); ++count)
+			{
+				finalallchatarray[count] = allchatpath[count];
+			}
+			finalallchatarray[allchatpath.length() / sizeof(allchatpath[0])] = '\0';
+			for (int count(0); count < allchatpath_temp.length() / sizeof(allchatpath_temp[0]); ++count)
+			{
+				allchattemparray[count] = allchatpath_temp[count];
+			}
+			allchattemparray[allchatpath_temp.length() / sizeof(allchatpath_temp[0])] = '\0';
+
+			remove(finalallchatarray);
+			rename(allchattemparray, finalallchatarray);
+
+			delete[] finalallchatarray;
+			finalallchatarray = nullptr;
+			delete[] allchattemparray;
+			allchattemparray = nullptr;
+
+			LPCTSTR enableordisable = L"Disable";
+
+			SetWindowText(
+				allchatenableButton,
+				enableordisable
+			);
+		}
+		if (allchatbutton_int == 1)
+		{
+			std::string allchatpath = loadallchatfile();
+			std::string allchatpath_temp = loadallchattempfile();
+
+			std::ofstream mytempfile;
+			mytempfile.open(allchatpath_temp, std::ios::app | std::ios::in);
+			mytempfile << 0;
+			mytempfile.close();
+
+			char* finalallchatarray = new char[allchatpath.length() / sizeof(allchatpath[0]) + 1];
+			char* allchattemparray = new char[allchatpath_temp.length() / sizeof(allchatpath_temp[0]) + 1];
+
+			for (int count(0); count<allchatpath.length() / sizeof(allchatpath[0]); ++count)
+			{
+				finalallchatarray[count] = allchatpath[count];
+			}
+			finalallchatarray[allchatpath.length() / sizeof(allchatpath[0])] = '\0';
+			for (int count(0); count < allchatpath_temp.length() / sizeof(allchatpath_temp[0]); ++count)
+			{
+				allchattemparray[count] = allchatpath_temp[count];
+			}
+			allchattemparray[allchatpath_temp.length() / sizeof(allchatpath_temp[0])] = '\0';
+
+			remove(finalallchatarray);
+			rename(allchattemparray, finalallchatarray);
+
+			delete[] finalallchatarray;
+			finalallchatarray = nullptr;
+			delete[] allchattemparray;
+			allchattemparray = nullptr;
+
+			LPCTSTR enableordisable = L"Enable";
+
+			SetWindowText(
+				allchatenableButton,
+				enableordisable
+			);
+		}
+
+		changeAllChatSettings();
+		changeIbmAllChatSettings();
+	}
+	break;
+	}
+
+	return CallWindowProc(OldButtonProc20, settings, uMsg, wp, lp);
 }
 
 // Functions regarding buttons
@@ -1392,12 +1581,16 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			hwnd, (HMENU)BUTTON_ID,
 			hInst, NULL);
 
+		startbuttontoggle = hButton;
+		
 		hButton2 = CreateWindow(L"button", L"Stop",
 			WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON | BS_BITMAP,
 			(width + width*0.025), (height - height*0.4),
 			(width*0.80), (height*0.80),
 			hwnd, (HMENU)BUTTON_ID_SEC,
 			hInst, NULL);
+
+		stopbuttontoggle = hButton2;
 
 		hButton3 = CreateWindow(L"button", L"Settings",
 			WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON | BS_BITMAP,
@@ -1435,8 +1628,25 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		DeleteObject(hBitmap03);
 		DeleteObject(hBitmap04);
 		DeleteObject(hBitmap05);
+		DeleteObject(hBitmap09);
+		DeleteObject(hBitmap10);
 
 		ShowWindow(windowforsettings, SW_HIDE);
+
+		std::string ibmuserpass;
+		std::string ibmuserandpass = loaduserpassfile();
+		std::ifstream ibmfile(ibmuserandpass);
+		ibmfile.clear();
+		ibmfile.seekg(0, ibmfile.beg);
+		if (ibmfile.is_open())
+		{
+			ibmfile.seekg(0, std::ios::end);
+			if ((int)ibmfile.tellg() == 0) 
+			{
+				exit(-1);
+			}
+		}
+		ibmfile.close();
 
 		PostQuitMessage(0);
 	}
@@ -1520,47 +1730,50 @@ LRESULT CALLBACK WindowProc_set(HWND settings, UINT uMsg, WPARAM wParam, LPARAM 
 #define BUTTON_ID_ADAPT 1007
 #define BUTTON_ID_ADAPTCONT 1008
 #define BUTTON_ID_ADAPTCONT2 1009
+#define BUTTON_ID_CANCELBUT 1017
+#define BUTTON_ID_ALLCHATBUT 1018
+#define BUTTON_ID_ENABLE 1019
 
 		HWND okButton, keyButton;
 
 		HWND address_input = CreateWindowExA(WS_EX_CLIENTEDGE, "edit", "...",
 			WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_BORDER | ES_LEFT | ES_AUTOHSCROLL,
-			(width_set - width_set*0.95), (height_set - height_set*0.85), 200, 24,	// x, y, w, h
+			(width_set - width_set*0.95), (height_set - height_set*0.90), 200, 24,	// x, y, w, h
 			settings, (HMENU)(101),
 			hinst_set, NULL);
 
 		okButton = CreateWindow(L"button", L"Set Path",
 			WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
-			(width_set + width_set*0.50), (height_set - height_set*0.85),
+			(width_set + width_set*0.50), (height_set - height_set*0.90),
 			(width_set*0.40), 24,
 			settings, (HMENU)BUTTON_ID_OK,
 			hinst_set, NULL);
 
 		keyButton = CreateWindow(L"button", L"Change",
 			WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
-			(width_set + width_set*0.50), (height_set - height_set*0.55 + height_set*0.10),
+			(width_set + width_set*0.50), (height_set - height_set*0.725 + height_set*0.10),
 			(width_set*0.40), 24,
 			settings, (HMENU)BUTTON_ID_KEY,
 			hinst_set, NULL);
 
 		HWND adaptButton = CreateWindow(L"button", L"Start",
 			WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
-			(width_set - width_set * 0.40), (height_set + height_set*0.15),
-			(width_set*0.80), (height_set*0.20),
+			(width_set - width_set * 0.40), (height_set + height_set*0.515),
+			(width_set*0.80), (height_set*0.10),
 			settings, (HMENU)BUTTON_ID_ADAPT,
 			hinst_set, NULL);
 
 		HWND adaptButton_cont = CreateWindow(L"button", L"Continue",
 			WS_CHILD | BS_DEFPUSHBUTTON,
-			(width_set - width_set * 0.40), (height_set + height_set*0.15),
-			(width_set*0.80), (height_set*0.20),
+			(width_set - width_set * 0.40), (height_set + height_set*0.515),
+			(width_set*0.80), (height_set*0.10),
 			settings, (HMENU)BUTTON_ID_ADAPTCONT,
 			hinst_set, NULL);
 
 		HWND adaptButton_cont2 = CreateWindow(L"button", L"Begin",
 			WS_CHILD | BS_DEFPUSHBUTTON,
-			(width_set - width_set * 0.40), (height_set + height_set*0.15),
-			(width_set*0.80), (height_set*0.20),
+			(width_set - width_set * 0.40), (height_set + height_set*0.515),
+			(width_set*0.80), (height_set*0.10),
 			settings, (HMENU)BUTTON_ID_ADAPTCONT2,
 			hinst_set, NULL);
 
@@ -1568,13 +1781,28 @@ LRESULT CALLBACK WindowProc_set(HWND settings, UINT uMsg, WPARAM wParam, LPARAM 
 
 		HWND keybindscreen = CreateWindowEx(WS_EX_CLIENTEDGE, L"Static", keybind,
 			WS_CHILD | WS_VISIBLE | WS_BORDER | ES_CENTER | ES_READONLY,
-			(width_set - width_set*0.95), (height_set - height_set*0.55 + height_set*0.10), (width_set*0.60), 24,	// x, y, w, h
+			(width_set - width_set*0.95), (height_set - height_set*0.725 + height_set*0.10), (width_set*0.60), 24,	// x, y, w, h
 			settings, (HMENU)(101),
+			hinst_set, NULL);
+
+		LPCTSTR cancelkeybind = intToKey(viewCancelKey());
+
+		HWND keybindcancel = CreateWindowEx(WS_EX_CLIENTEDGE, L"Static", cancelkeybind,
+			WS_CHILD | WS_VISIBLE | WS_BORDER | ES_CENTER | ES_READONLY,
+			(width_set - width_set*0.95), (height_set - height_set*0.45 + height_set*0.10), (width_set*0.60), 24,	// x, y, w, h
+			settings, (HMENU)(101),
+			hinst_set, NULL);
+
+		HWND keycancelButton = CreateWindow(L"button", L"Change",
+			WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
+			(width_set + width_set*0.50), (height_set - height_set*0.45 + height_set*0.10),
+			(width_set*0.40), 24,
+			settings, (HMENU)BUTTON_ID_CANCELBUT,
 			hinst_set, NULL);
 
 		HWND adaptscreen = CreateWindowEx(WS_EX_CLIENTEDGE, L"Static", L"Press 'Start' to begin",
 			WS_CHILD | WS_VISIBLE | WS_BORDER | ES_CENTER | ES_READONLY,
-			(width_set - width_set * 0.99), (height_set + height_set*0.375), (width_set + width_set*0.90), 50,	// x, y, w, h
+			(width_set - width_set * 0.99), (height_set + height_set*0.625), (width_set + width_set*0.90), 50,	// x, y, w, h
 			settings, (HMENU)(101),
 			hinst_set, NULL);
 
@@ -1610,6 +1838,55 @@ LRESULT CALLBACK WindowProc_set(HWND settings, UINT uMsg, WPARAM wParam, LPARAM 
 			settings, (HMENU)BUTTON_ID_KEY,
 			hinst_set, NULL);
 
+		// all chat
+		LPCTSTR allchatkeybind = intToKey(viewAllChatKey());
+
+		HWND allchatkeybindscreen = CreateWindowEx(WS_EX_CLIENTEDGE, L"Static", allchatkeybind,
+			WS_CHILD | WS_VISIBLE | WS_BORDER | ES_CENTER | ES_READONLY,
+			(width_set - 30), (height_set + 45 + 15),
+			(width_set*0.60), 24,	// x, y, w, h
+			settings, (HMENU)(101),
+			hinst_set, NULL);
+
+		HWND keyallchatButton = CreateWindow(L"button", L"Change",
+			WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
+			(width_set + width_set*0.50), (height_set + 45 + 15),
+			(width_set*0.40), 24,
+			settings, (HMENU)BUTTON_ID_ALLCHATBUT,
+			hinst_set, NULL);
+
+		int allchatbutton_int(0);
+		std::string allchatfile = loadallchatfile();
+		std::ifstream allchatpathfile(allchatfile);
+		allchatpathfile >> allchatbutton_int;
+		allchatpathfile.close();
+
+		allchatenableButton = CreateWindow(L"button", L"Enable",
+			WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
+			(width_set - width_set*0.95), (height_set + 45 + 15),
+			(width_set*0.40), 24,
+			settings, (HMENU)BUTTON_ID_ENABLE,
+			hinst_set, NULL);
+
+		if (allchatbutton_int == 0)
+		{
+			LPCTSTR enableordisable = L"Enable";
+
+			SetWindowText(
+				allchatenableButton,
+				enableordisable
+			);
+		}
+		if (allchatbutton_int == 1)
+		{
+			LPCTSTR enableordisable = L"Disable";
+
+			SetWindowText(
+				allchatenableButton,
+				enableordisable
+			);
+		}
+
 		OldButtonProc4 = (WNDPROC)SetWindowLong(okButton, GWL_WNDPROC, (LONG)ButtonProc4);
 
 		OldButtonProc5 = (WNDPROC)SetWindowLong(keyButton, GWL_WNDPROC, (LONG)ButtonProc5);
@@ -1621,6 +1898,12 @@ LRESULT CALLBACK WindowProc_set(HWND settings, UINT uMsg, WPARAM wParam, LPARAM 
 		OldButtonProc8 = (WNDPROC)SetWindowLong(adaptButton_cont2, GWL_WNDPROC, (LONG)ButtonProc8);
 
 		OldButtonProc17 = (WNDPROC)SetWindowLong(switchoutputButton, GWL_WNDPROC, (LONG)ButtonProc17);
+
+		OldButtonProc18 = (WNDPROC)SetWindowLong(keycancelButton, GWL_WNDPROC, (LONG)ButtonProc18);
+
+		OldButtonProc19 = (WNDPROC)SetWindowLong(keyallchatButton, GWL_WNDPROC, (LONG)ButtonProc19);
+
+		OldButtonProc20 = (WNDPROC)SetWindowLong(allchatenableButton, GWL_WNDPROC, (LONG)ButtonProc20);
 
 		GetWindowLong(settings, GWL_HINSTANCE);
 
@@ -1664,6 +1947,20 @@ LRESULT CALLBACK WindowProc_set(HWND settings, UINT uMsg, WPARAM wParam, LPARAM 
 			NULL,
 			L"button",
 			L"Begin"
+		);
+
+		setcancelkeybind = FindWindowEx(
+			settings,
+			NULL,
+			L"Static",
+			cancelkeybind
+		);
+
+		setallchatkeybind = FindWindowEx(
+			settings,
+			NULL,
+			L"Static",
+			allchatkeybind
 		);
 	}
 	break;
@@ -1730,11 +2027,19 @@ LRESULT CALLBACK WindowProc_set(HWND settings, UINT uMsg, WPARAM wParam, LPARAM 
 		};
 
 		LPSTR keybindText[] = {
-			"Keybind"
+			"Keybind: talk"
+		};
+
+		LPSTR keybindcancelText[] = {
+			"Keybind: cancel sentence"
 		};
 
 		LPSTR outputmodeText[] = {
 			"Output mode"
+		};
+
+		LPSTR allchatText[] = {
+			"All chat                            Keybind: all chat"
 		};
 
 		COLORREF crColor = RGB(
@@ -1770,7 +2075,7 @@ LRESULT CALLBACK WindowProc_set(HWND settings, UINT uMsg, WPARAM wParam, LPARAM 
 		TextOutA(
 			hdc,
 			(width_set - width_set*0.95),
-			(height_set + height_set*0.05),
+			(height_set + height_set*0.45),
 			adaptText[0],
 			24
 		);
@@ -1779,9 +2084,17 @@ LRESULT CALLBACK WindowProc_set(HWND settings, UINT uMsg, WPARAM wParam, LPARAM 
 		TextOutA(
 			hdc,
 			(width_set - width_set*0.95),
-			(height_set - height_set*0.575),
+			(height_set - height_set*0.70),
 			keybindText[0],
-			8
+			14
+		);
+
+		TextOutA(
+			hdc,
+			(width_set - width_set*0.95),
+			(height_set - height_set*0.425),
+			keybindcancelText[0],
+			25
 		);
 
 		TextOutA(
@@ -1790,6 +2103,14 @@ LRESULT CALLBACK WindowProc_set(HWND settings, UINT uMsg, WPARAM wParam, LPARAM 
 			(height_set + height_set*0.05 - 45),
 			outputmodeText[0],
 			12
+		);
+
+		TextOutA(
+			hdc,
+			(width_set - width_set*0.95),
+			(height_set + 42.5),
+			allchatText[0],
+			54
 		);
 
 		EndPaint(settings, &ps);
@@ -1802,6 +2123,7 @@ LRESULT CALLBACK WindowProc_set(HWND settings, UINT uMsg, WPARAM wParam, LPARAM 
 
 LRESULT CALLBACK WindowProc_ibm(HWND settings_ibm, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	// getting measurements of window size
 	RECT rect_set;
 	int width_set, height_set;
 
@@ -1815,36 +2137,38 @@ LRESULT CALLBACK WindowProc_ibm(HWND settings_ibm, UINT uMsg, WPARAM wParam, LPA
 	{
 	case WM_CREATE:
 	{
+		// creating buttons for setting window
 #define BUTTON_ID_USERPASS 1015
+
 		username = CreateWindowExA(WS_EX_CLIENTEDGE, "edit", "",
 			WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_BORDER | ES_LEFT | ES_AUTOHSCROLL,
-			(width_set - width_set*0.95), (height_set - height_set*0.85), 200, 24,	// x, y, w, h
+			(width_set - width_set*0.95), (height_set - height_set*0.90), 200, 24,	// x, y, w, h
 			settings_ibm, (HMENU)(101),
 			hinst_ibm, NULL);
 
 		password = CreateWindowExA(WS_EX_CLIENTEDGE, "edit", "",
 			WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_BORDER | ES_LEFT | ES_AUTOHSCROLL,
-			(width_set - width_set*0.95), (height_set - height_set*0.55 + height_set*0.10), 200, 24,	// x, y, w, h
+			(width_set - width_set*0.95), (height_set - height_set*0.80 + height_set*0.10), 200, 24,	// x, y, w, h
 			settings_ibm, (HMENU)(101),
 			hinst_ibm, NULL);
 
 		setuserpassButton = CreateWindow(L"button", L"Confirm",
 			WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
-			(width_set - (width_set*0.80)/2), (height_set - height_set*0.55 + height_set*0.35),
+			(width_set - (width_set*0.80)/2), (height_set - height_set*0.85 + height_set*0.35),
 			(width_set*0.80), 24,
 			settings_ibm, (HMENU)BUTTON_ID_USERPASS,
 			hinst_ibm, NULL);
 
 		HWND instructionButton = CreateWindow(L"button", L"Create account",
 			WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON | BS_MULTILINE,
-			(width_set + width_set*0.30), (height_set - 110),
+			(width_set + width_set*0.30), (height_set - 210),
 			(width_set*0.40), 50,
 			settings_ibm, (HMENU)BUTTON_ID_USERPASS,
 			hinst_ibm, NULL);
 
 		HWND keyButton = CreateWindow(L"button", L"Change",
 			WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
-			(width_set + width_set*0.50), (height_set + 50 - 30),
+			(width_set + width_set*0.50), (height_set + 50 - 30 - 70),
 			(width_set*0.40), 24,
 			settings_ibm, (HMENU)BUTTON_ID_KEY,
 			hinst_ibm, NULL);
@@ -1853,9 +2177,25 @@ LRESULT CALLBACK WindowProc_ibm(HWND settings_ibm, UINT uMsg, WPARAM wParam, LPA
 
 		HWND keybindscreen = CreateWindowEx(WS_EX_CLIENTEDGE, L"Static", keybind,
 			WS_CHILD | WS_VISIBLE | WS_BORDER | ES_CENTER | ES_READONLY,
-			(width_set - width_set*0.95), (height_set + 50 - 30), 
+			(width_set - width_set*0.95), (height_set + 50 - 30 - 70), 
 			(width_set*0.60), 24,	// x, y, w, h
 			settings_ibm, (HMENU)(101),
+			hinst_ibm, NULL);
+
+		LPCTSTR cancelkeybind = intToKey(viewCancelKey());
+
+		HWND cancelkeybindscreen = CreateWindowEx(WS_EX_CLIENTEDGE, L"Static", cancelkeybind,
+			WS_CHILD | WS_VISIBLE | WS_BORDER | ES_CENTER | ES_READONLY,
+			(width_set - width_set*0.95), (height_set + 50 - 30),
+			(width_set*0.60), 24,	// x, y, w, h
+			settings_ibm, (HMENU)(101),
+			hinst_ibm, NULL);
+
+		HWND keycancelButton = CreateWindow(L"button", L"Change",
+			WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
+			(width_set + width_set*0.50), (height_set + 50 - 30),
+			(width_set*0.40), 24,
+			settings_ibm, (HMENU)BUTTON_ID_CANCELBUT,
 			hinst_ibm, NULL);
 
 		int ibmoutputmode_int(0);
@@ -1868,7 +2208,7 @@ LRESULT CALLBACK WindowProc_ibm(HWND settings_ibm, UINT uMsg, WPARAM wParam, LPA
 		{
 			HWND ibmoutputmodescreen = CreateWindowEx(WS_EX_CLIENTEDGE, L"Static", L"Block",
 				WS_CHILD | WS_VISIBLE | WS_BORDER | ES_CENTER | ES_READONLY,
-				(width_set - width_set*0.95), (height_set + 50 + 20),
+				(width_set - width_set*0.95), (height_set + 50 + 20 + 20),
 				(width_set*0.60), 24,	// x, y, w, h
 				settings_ibm, (HMENU)(101),
 				hinst_ibm, NULL);
@@ -1877,7 +2217,7 @@ LRESULT CALLBACK WindowProc_ibm(HWND settings_ibm, UINT uMsg, WPARAM wParam, LPA
 		{
 			HWND ibmoutputmodescreen = CreateWindowEx(WS_EX_CLIENTEDGE, L"Static", L"Spread",
 				WS_CHILD | WS_VISIBLE | WS_BORDER | ES_CENTER | ES_READONLY,
-				(width_set - width_set*0.95), (height_set + 50 + 20),
+				(width_set - width_set*0.95), (height_set + 50 + 20 + 20),
 				(width_set*0.60), 24,	// x, y, w, h
 				settings_ibm, (HMENU)(101),
 				hinst_ibm, NULL);
@@ -1885,15 +2225,68 @@ LRESULT CALLBACK WindowProc_ibm(HWND settings_ibm, UINT uMsg, WPARAM wParam, LPA
 
 		HWND switchoutputButton = CreateWindow(L"button", L"Switch",
 			WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
-			(width_set + width_set*0.50), (height_set + 50 + 20),
+			(width_set + width_set*0.50), (height_set + 50 + 20 + 20),
 			(width_set*0.40), 24,
 			settings_ibm, (HMENU)BUTTON_ID_KEY,
 			hinst_ibm, NULL);
 
+		// all chat
+		LPCTSTR allchatkeybind = intToKey(viewAllChatKey());
+
+		HWND allchatkeybindscreen = CreateWindowEx(WS_EX_CLIENTEDGE, L"Static", allchatkeybind,
+			WS_CHILD | WS_VISIBLE | WS_BORDER | ES_CENTER | ES_READONLY,
+			(width_set - 30), (height_set + 50 + 20 + 91),
+			(width_set*0.60), 24,	// x, y, w, h
+			settings_ibm, (HMENU)(101),
+			hinst_ibm, NULL);
+
+		HWND keyallchatButton = CreateWindow(L"button", L"Change",
+			WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
+			(width_set + width_set*0.50), (height_set + 50 + 20 + 91),
+			(width_set*0.40), 24,
+			settings_ibm, (HMENU)BUTTON_ID_ALLCHATBUT,
+			hinst_ibm, NULL);
+
+		int allchatbutton_int(0);
+		std::string allchatfile = loadallchatfile();
+		std::ifstream allchatpathfile(allchatfile);
+		allchatpathfile >> allchatbutton_int;
+		allchatpathfile.close();
+
+		allchatenableButton = CreateWindow(L"button", L"Enable",
+			WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
+			(width_set - width_set*0.95), (height_set + 50 + 20 + 91),
+			(width_set*0.40), 24,
+			settings_ibm, (HMENU)BUTTON_ID_ENABLE,
+			hinst_ibm, NULL);
+
+		if (allchatbutton_int == 0)
+		{
+			LPCTSTR enableordisable = L"Enable";
+
+			SetWindowText(
+				allchatenableButton,
+				enableordisable
+			);
+		}
+		if (allchatbutton_int == 1)
+		{
+			LPCTSTR enableordisable = L"Disable";
+
+			SetWindowText(
+				allchatenableButton,
+				enableordisable
+			);
+		}
+
+		// creating button procs
 		OldButtonProc5 = (WNDPROC)SetWindowLong(keyButton, GWL_WNDPROC, (LONG)ButtonProc5);
 		OldButtonProc13 = (WNDPROC)SetWindowLong(setuserpassButton, GWL_WNDPROC, (LONG)ButtonProc13);
 		OldButtonProc14 = (WNDPROC)SetWindowLong(instructionButton, GWL_WNDPROC, (LONG)ButtonProc14);
 		OldButtonProc16 = (WNDPROC)SetWindowLong(switchoutputButton, GWL_WNDPROC, (LONG)ButtonProc16);
+		OldButtonProc18 = (WNDPROC)SetWindowLong(keycancelButton, GWL_WNDPROC, (LONG)ButtonProc18);
+		OldButtonProc19 = (WNDPROC)SetWindowLong(keyallchatButton, GWL_WNDPROC, (LONG)ButtonProc19);
+		OldButtonProc20 = (WNDPROC)SetWindowLong(allchatenableButton, GWL_WNDPROC, (LONG)ButtonProc20);
 
 		GetWindowLong(settings_ibm, GWL_HINSTANCE);
 
@@ -1902,6 +2295,20 @@ LRESULT CALLBACK WindowProc_ibm(HWND settings_ibm, UINT uMsg, WPARAM wParam, LPA
 			NULL,
 			L"Static",
 			keybind
+		);
+
+		setcancelkeybind = FindWindowEx(
+			settings_ibm,
+			NULL,
+			L"Static",
+			cancelkeybind
+		);
+
+		setallchatkeybind = FindWindowEx(
+			settings_ibm,
+			NULL,
+			L"Static",
+			allchatkeybind
 		);
 	}
 	break;
@@ -1960,11 +2367,19 @@ LRESULT CALLBACK WindowProc_ibm(HWND settings_ibm, UINT uMsg, WPARAM wParam, LPA
 		};
 
 		LPSTR keybindText[] = {
-			"Keybind"
+			"Keybind: talk"
+		};
+
+		LPSTR keybindcancelText[] = {
+			"Keybind: cancel sentence"
 		};
 
 		LPSTR ibmoutputmodesText[] = {
 			"Output mode"
+		};
+
+		LPSTR allchatText[] = {
+			"All chat                            Keybind: all chat"
 		};
 
 		COLORREF crColor = RGB(
@@ -2000,7 +2415,7 @@ LRESULT CALLBACK WindowProc_ibm(HWND settings_ibm, UINT uMsg, WPARAM wParam, LPA
 		TextOutA(
 			hdc,
 			(width_set - width_set*0.95),
-			(height_set - height_set*0.575),
+			(height_set - height_set*0.775),
 			passText[0],
 			9
 		);
@@ -2008,17 +2423,33 @@ LRESULT CALLBACK WindowProc_ibm(HWND settings_ibm, UINT uMsg, WPARAM wParam, LPA
 		TextOutA(
 			hdc,
 			(width_set - width_set*0.95),
-			(height_set + 30 - 30),
+			(height_set + 30 - 30 - 70),
 			keybindText[0],
-			8
+			14
 		);
 
 		TextOutA(
 			hdc,
 			(width_set - width_set*0.95),
-			(height_set + 50),
+			(height_set + 30 - 30),
+			keybindcancelText[0],
+			25
+		);
+
+		TextOutA(
+			hdc,
+			(width_set - width_set*0.95),
+			(height_set + 70),
 			ibmoutputmodesText[0],
 			12
+		);
+
+		TextOutA(
+			hdc,
+			(width_set - width_set*0.95),
+			(height_set + 140),
+			allchatText[0],
+			54
 		);
 
 		EndPaint(settings_ibm, &ps);
@@ -2734,6 +3165,22 @@ void loadVariablesWindow()
 
 		delete[] overdrivebmp;
 		overdrivebmp = nullptr;
+
+		char lmagestart_toggled[26] = "/Vector/lmage-toggled.bmp";
+		lmagebmp_toggled = new char[len + 25 + 1];
+		loadbitmaps_default(lmagebmp_toggled, lmagestart_toggled, 25);
+		hBitmap09 = (HBITMAP)LoadImageA(NULL, lmagebmp_toggled, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+
+		delete[] lmagebmp_toggled;
+		lmagebmp_toggled = nullptr;
+
+		char lmagestop_toggled[31] = "/Vector/lmage_stop-toggled.bmp";
+		lmage_stop_toggled = new char[len + 30 + 1];
+		loadbitmaps_default(lmage_stop_toggled, lmagestop_toggled, 30);
+		hBitmap10 = (HBITMAP)LoadImageA(NULL, lmage_stop_toggled, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+
+		delete[] lmage_stop_toggled;
+		lmage_stop_toggled = nullptr;
 	}
 	else
 	{
@@ -2805,6 +3252,22 @@ void loadVariablesWindow()
 
 		delete[] overdrivebmp;
 		overdrivebmp = nullptr;
+
+		char lmagestart_toggled[26] = "/Vector/lmage-toggled.bmp";
+		lmagebmp_toggled = new char[len + 25 + 1];
+		loadbitmaps(lmagebmp_toggled, lmagestart_toggled, 25);
+		hBitmap09 = (HBITMAP)LoadImageA(NULL, lmagebmp_toggled, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+
+		delete[] lmagebmp_toggled;
+		lmagebmp_toggled = nullptr;
+
+		char lmagestop_toggled[31] = "/Vector/lmage_stop-toggled.bmp";
+		lmage_stop_toggled = new char[len + 30 + 1];
+		loadbitmaps(lmage_stop_toggled, lmagestop_toggled, 30);
+		hBitmap10 = (HBITMAP)LoadImageA(NULL, lmage_stop_toggled, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+
+		delete[] lmage_stop_toggled;
+		lmage_stop_toggled = nullptr;
 	}
 
 	if (hBitmap01 == NULL)
@@ -2821,6 +3284,12 @@ void loadVariablesWindow()
 		MessageBoxA(NULL, "Error Loading sphinx.bmp.", "ERROR", MB_ICONWARNING | MB_DEFBUTTON2);
 	if (hBitmap07 == NULL)
 		MessageBoxA(NULL, "Error Loading ibmstt.bmp.", "ERROR", MB_ICONWARNING | MB_DEFBUTTON2);
+	if (hBitmap08 == NULL)
+		MessageBoxA(NULL, "Error Loading overdrive.bmp.", "ERROR", MB_ICONWARNING | MB_DEFBUTTON2);
+	if (hBitmap09 == NULL)
+		MessageBoxA(NULL, "Error Loading lmage-toggled.bmp.", "ERROR", MB_ICONWARNING | MB_DEFBUTTON2);
+	if (hBitmap10 == NULL)
+		MessageBoxA(NULL, "Error Loading lmage_stop-toggled.bmp.", "ERROR", MB_ICONWARNING | MB_DEFBUTTON2);
 }
 
 std::string loadpathfile()
@@ -3176,6 +3645,148 @@ std::string loaduserpasstempfile()
 	delete[] userpasstemp_path;
 	userpasstemp_path = nullptr;
 	return userpasstempfinalpath;
+}
+
+std::string loadallchatfile()
+{
+	// load exe
+	char exe_path[MAX_PATH];
+	char* allchat_path = nullptr;
+	HMODULE hmodule = GetModuleHandle(NULL);
+	GetModuleFileNameA(hmodule, exe_path, (sizeof(exe_path)));
+	int directorysize(0);
+
+	for (int count(0); count < 260; ++count)
+	{
+		++directorysize;
+		// find LoLvoice.exe
+		if (exe_path[count] == 'L')
+		{
+			if (exe_path[count + 1] == 'o')
+			{
+				if (exe_path[count + 2] == 'L')
+				{
+					if (exe_path[count + 3] == 'v')
+					{
+						if (exe_path[count + 4] == 'o')
+						{
+							if (exe_path[count + 5] == 'i')
+							{
+								if (exe_path[count + 6] == 'c')
+								{
+									if (exe_path[count + 7] == 'e')
+									{
+										if (exe_path[count + 8] == '.')
+										{
+											if (exe_path[count + 9] == 'e')
+											{
+												if (exe_path[count + 10] == 'x')
+												{
+													if (exe_path[count + 11] == 'e')
+													{
+														break;
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	allchat_path = new char[directorysize + 13 + 1];
+	char allchatfilename[15] = "Config/allchat";
+
+	for (int count(0); count < directorysize - 1; ++count)
+	{
+		allchat_path[count] = exe_path[count];
+	}
+	for (int count(0); count < 14; ++count)
+	{
+		allchat_path[directorysize - 1 + count] = allchatfilename[count];
+	}
+	allchat_path[directorysize + 13] = '\0';
+
+	std::string allchatfinalpath = sconvert(allchat_path, (directorysize + 13 + 1));
+	delete[] allchat_path;
+	allchat_path = nullptr;
+	return allchatfinalpath;
+}
+
+std::string loadallchattempfile()
+{
+	// load exe
+	char exe_path[MAX_PATH];
+	char* allchattemp_path = nullptr;
+	HMODULE hmodule = GetModuleHandle(NULL);
+	GetModuleFileNameA(hmodule, exe_path, (sizeof(exe_path)));
+	int directorysize(0);
+
+	for (int count(0); count < 260; ++count)
+	{
+		++directorysize;
+		// find LoLvoice.exe
+		if (exe_path[count] == 'L')
+		{
+			if (exe_path[count + 1] == 'o')
+			{
+				if (exe_path[count + 2] == 'L')
+				{
+					if (exe_path[count + 3] == 'v')
+					{
+						if (exe_path[count + 4] == 'o')
+						{
+							if (exe_path[count + 5] == 'i')
+							{
+								if (exe_path[count + 6] == 'c')
+								{
+									if (exe_path[count + 7] == 'e')
+									{
+										if (exe_path[count + 8] == '.')
+										{
+											if (exe_path[count + 9] == 'e')
+											{
+												if (exe_path[count + 10] == 'x')
+												{
+													if (exe_path[count + 11] == 'e')
+													{
+														break;
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	allchattemp_path = new char[directorysize + 18 + 1];
+	char allchattempfilename[20] = "Config/allchat_temp";
+
+	for (int count(0); count < directorysize - 1; ++count)
+	{
+		allchattemp_path[count] = exe_path[count];
+	}
+	for (int count(0); count < 19; ++count)
+	{
+		allchattemp_path[directorysize - 1 + count] = allchattempfilename[count];
+	}
+	allchattemp_path[directorysize + 18] = '\0';
+
+	std::string allchattempfinalpath = sconvert(allchattemp_path, (directorysize + 18 + 1));
+	delete[] allchattemp_path;
+	allchattemp_path = nullptr;
+	return allchattempfinalpath;
 }
 
 void createPathtoExeDirectory(char* &defaultpath, int &length)

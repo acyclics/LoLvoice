@@ -22,6 +22,8 @@ size_t writeFunction(void *ptr, size_t size, size_t nmemb, std::string* data) {
 std::string loaduserpassfile();
 std::string sconvert(const char *pCh, int arraySize);
 std::string loadibmoutputfile();
+std::string loadallchatfile();
+void typeAllChat();
 
 // curl
 DWORD dwError = ERROR_SUCCESS;
@@ -51,12 +53,17 @@ inline void pressEnter(INPUT ip2);
 void alpaOut(char char_array[], int length);
 int viewKey();
 int viewOverdriveKey();
+int viewCancelKey();
+int viewAllChatKey();
 bool micState_ibm = false;
 bool micClose_ibm = false;
 bool inputting = true;
 int keybind_ibm;
+int cancelkeybind_ibm;
+int allchatkeybind_ibm;
 bool checkifcansilence = true;
 bool checkifcansend = true;
+int allchatbutton_int(0);
 
 // sets up the microphone for initiating first call to ibm. another microphone object is opened for the user to use
 void setupmicrophone()
@@ -307,8 +314,24 @@ void readFromIbm(char* &array, int keybind, int &sizeofbuffer)
 	{
 		if (!((GetKeyState(keybind) & 0x80) != 0))
 		{
+			if ((GetKeyState(cancelkeybind_ibm) & 0x80) != 0)
+			{
+				waveInStop(hWaveIn_mico);
+				waveInClose(hWaveIn_mico);
+				sizeofbuffer = 0;
+				goto cancelled;
+			}
 			break;
 		}
+
+		if ((GetKeyState(cancelkeybind_ibm) & 0x80) != 0)
+		{
+			waveInStop(hWaveIn_mico);
+			waveInClose(hWaveIn_mico);
+			sizeofbuffer = 0;
+			goto cancelled;
+		}
+
 		Sleep(1);			// cheap way to lower cpu usuage
 	}
 
@@ -377,6 +400,10 @@ void readFromIbm(char* &array, int keybind, int &sizeofbuffer)
 			break;
 	}
 	array[sizeofbuffer + 1] = '\0';
+
+	// label for cancelled sentences
+	cancelled:
+
 	waveInUnprepareHeader(hWaveIn_mico, &WaveInHdr_mic, sizeof(WAVEHDR));
 	ZeroMemory(&WaveInHdr_mic, sizeof(WAVEHDR));
 }
@@ -549,6 +576,8 @@ void startIbmTts()
 {
 	// initialize
 	keybind_ibm = viewKey();
+	cancelkeybind_ibm = viewCancelKey();
+	allchatkeybind_ibm = viewAllChatKey();
 	getIBMTTS();
 
 	int ibmoutputmode_int(0);
@@ -556,6 +585,11 @@ void startIbmTts()
 	std::ifstream pathfile(ibmoutputmode);
 	pathfile >> ibmoutputmode_int;
 	pathfile.close();
+
+	std::string allchatfile = loadallchatfile();
+	std::ifstream allchatpathfile(allchatfile);
+	allchatpathfile >> allchatbutton_int;
+	allchatpathfile.close();
 
 	INPUT ip2;
 	ip2.type = INPUT_KEYBOARD;
@@ -581,7 +615,6 @@ void startIbmTts()
 				while ((GetKeyState(keybind_ibm) & 0x80) != 0) {					// when user press the keybind start input
 					char * ibmarray = nullptr;
 					checkifcansilence = false;
-					//setupmicrophone();
 					readFromIbm(ibmarray, keybind_ibm, sizeofbuffer);
 					pressEnter(ip2);
 					alpaOut(ibmarray, sizeofbuffer);
@@ -595,7 +628,30 @@ void startIbmTts()
 					ibmarray = nullptr;
 					checkifcansilence = true;
 				}
+
+				// all chat
+				if (allchatbutton_int == 1)
+				{
+					while ((GetKeyState(allchatkeybind_ibm) & 0x80) != 0) {					// when user press the keybind start input
+						char * ibmarray = nullptr;
+						checkifcansilence = false;
+						readFromIbm(ibmarray, allchatkeybind_ibm, sizeofbuffer);
+						pressEnter(ip2);
+						typeAllChat();
+						alpaOut(ibmarray, sizeofbuffer);
+						Sleep(60);
+						pressEnter(ip2);
+
+						if (sizeofbuffer != 0)
+						{
+							delete[] ibmarray;
+						}
+						ibmarray = nullptr;
+						checkifcansilence = true;
+					}
+				}
 			}
+
 			if (micClose_ibm == true)
 			{
 				inputting = false;
@@ -638,7 +694,42 @@ void startIbmTts()
 					dividedarray = nullptr;
 					checkifcansilence = true;
 				}
+
+				// all chat
+				if (allchatbutton_int == 1)
+				{
+					while ((GetKeyState(allchatkeybind_ibm) & 0x80) != 0) {					// when user press the keybind start input
+						char * ibmarray = nullptr;
+						checkifcansilence = false;
+						readFromIbm(ibmarray, allchatkeybind_ibm, sizeofbuffer);
+						int countofarray(0), totalcountofarray(0);
+						int * dividedarraysizeofbuffer = nullptr;
+						char ** dividedarray = nullptr;
+						dividearrays(ibmarray, dividedarray, sizeofbuffer, totalcountofarray, dividedarraysizeofbuffer);
+						while (countofarray != totalcountofarray)
+						{
+							pressEnter(ip2);
+							typeAllChat();
+							alpaOut(dividedarray[countofarray], dividedarraysizeofbuffer[countofarray]);
+							Sleep(60);
+							pressEnter(ip2);
+							++countofarray;
+						}
+						if (sizeofbuffer != 0)
+						{
+							// might have to add this to above too
+							delete[] ibmarray;
+							delete[] dividedarraysizeofbuffer;
+							delete[] dividedarray;
+						}
+						ibmarray = nullptr;
+						dividedarraysizeofbuffer = nullptr;
+						dividedarray = nullptr;
+						checkifcansilence = true;
+					}
+				}
 			}
+
 			if (micClose_ibm == true)
 			{
 				inputting = false;
@@ -668,6 +759,29 @@ void endIbmstt()
 void overdriveKeybind()
 {
 	keybind_ibm = viewOverdriveKey();
+}
+
+void changeIbmKeybind()
+{
+	keybind_ibm = viewKey();
+}
+
+void changeIbmCancelKeybind()
+{
+	cancelkeybind_ibm = viewCancelKey();
+}
+
+void changeIbmAllChatKeybind()
+{
+	allchatkeybind_ibm = viewAllChatKey();
+}
+
+void changeIbmAllChatSettings()
+{
+	std::string allchatfile = loadallchatfile();
+	std::ifstream allchatpathfile(allchatfile);
+	allchatpathfile >> allchatbutton_int;
+	allchatpathfile.close();
 }
 
 bool checkforhandlenull()

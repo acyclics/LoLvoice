@@ -7,13 +7,6 @@
 #include <string>
 #include <sys/stat.h>
 
-/*
-std::ofstream mytempfile;
-mytempfile.open("execheck.txt", std::ios::app | std::ios::in);
-mytempfile << len;
-mytempfile.close();
-*/
-
 char* returnPath();
 int returnSizee();
 void createMFC(char* mfcexe, char* mfcpath);
