@@ -1,5 +1,5 @@
 # LoLvoice
-An application that "types" into League of Legend's in-game chat what you speak into your microphone. Now, you can play the game and communicate simultaneously.
+An application that "types" into League of Legend's in-game chat what you speak into your microphone. It is a voice to chat application for LoL. Now, you can play the game and communicate simultaneously.
 
 Currently available on Windows and is coded primarily in C/C++.
 
